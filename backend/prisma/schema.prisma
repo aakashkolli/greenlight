@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(cuid())
+  walletAddress String         @unique
+  username      String?
+  createdAt     DateTime       @default(now())
+  projects      Project[]
+  contributions Contribution[]
+}
+
+model Project {
+  id                   String         @id @default(cuid())
+  grantContractAddress String         @unique
+  title                String
+  description          String
+  imageUrl             String?
+  goalAmount           String         // stored as string (wei)
+  deadline             DateTime
+  amountRaised         String         @default("0") // wei
+  creatorWallet        String
+  createdAt            DateTime       @default(now())
+  creator              User           @relation(fields: [creatorWallet], references: [walletAddress])
+  contributions        Contribution[]
+}
+
+model Contribution {
+  id            String   @id @default(cuid())
+  projectId     String
+  walletAddress String
+  amount        String   // wei
+  txHash        String   @unique
+  refunded      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  project       Project  @relation(fields: [projectId], references: [id])
+  backer        User     @relation(fields: [walletAddress], references: [walletAddress])
+}

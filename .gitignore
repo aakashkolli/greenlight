@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.env
+.env.local
+.next/
+artifacts/
+cache/
+typechain-types/
+.deployment.json
+.gstack/
+.claude/
+TASKS.md

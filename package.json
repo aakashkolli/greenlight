@@ -1,0 +1,27 @@
+{
+  "name": "greenlight",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend",
+    "contracts"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "npm --workspace frontend run dev",
+    "dev:backend": "npm --workspace backend run dev",
+    "dev:chain": "npm --workspace contracts run node",
+    "deploy": "npm --workspace contracts run deploy",
+    "db:push": "npm --workspace backend run db:push",
+    "db:reset": "npm --workspace backend run db:reset",
+    "db:setup": "npm run db:push && npm run seed",
+    "seed": "npm --workspace backend run seed",
+    "test:contracts": "npm --workspace contracts run test"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.2"
+  }
+}
