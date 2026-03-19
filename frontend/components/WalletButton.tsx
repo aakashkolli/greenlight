@@ -36,10 +36,15 @@ export function WalletButton() {
       colorScheme="brand"
       size="md"
       px={6}
-      onClick={() => connector && connect({ connector })}
+      onClick={() => {
+        if (connector) {
+          connect({ connector });
+        } else {
+          window.open('https://metamask.io/download/', '_blank');
+        }
+      }}
       isLoading={isPending}
       loadingText="Connecting"
-      isDisabled={!connector}
     >
       Connect Wallet
     </Button>
