@@ -24,10 +24,7 @@ jobs:
           node-version: 20
           cache: npm
       - name: Install dependencies
-        run: npm install
-        env:
-          npm_config_os: linux
-          npm_config_cpu: x64
+        run: npm install --omit=optional
       - name: Build for GitHub Pages
         run: npm --workspace frontend run build:github-pages
         env:
