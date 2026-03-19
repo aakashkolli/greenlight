@@ -1,10 +1,13 @@
 'use client';
 
 import { ChakraProvider, extendTheme } from '@chakra-ui/react';
-import { WagmiProvider } from 'wagmi';
+import { WagmiProvider } from '@privy-io/wagmi';
+import { PrivyProvider } from '@privy-io/react-auth';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { wagmiConfig } from '@/lib/wagmi';
 import { useState } from 'react';
+
+const PRIVY_APP_ID = process.env.NEXT_PUBLIC_PRIVY_APP_ID || 'cmmvbtxlm00gk0ck1oj515c37';
 
 const theme = extendTheme({
   styles: {
@@ -52,10 +55,22 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <WagmiProvider config={wagmiConfig}>
-        <ChakraProvider theme={theme}>{children}</ChakraProvider>
-      </WagmiProvider>
-    </QueryClientProvider>
+    <PrivyProvider
+      appId={PRIVY_APP_ID}
+      config={{
+        appearance: {
+          walletChainType: 'ethereum-only',
+          theme: 'light',
+          accentColor: '#0b5f76',
+        },
+        loginMethods: ['wallet', 'email'],
+      }}
+    >
+      <QueryClientProvider client={queryClient}>
+        <WagmiProvider config={wagmiConfig}>
+          <ChakraProvider theme={theme}>{children}</ChakraProvider>
+        </WagmiProvider>
+      </QueryClientProvider>
+    </PrivyProvider>
   );
 }
