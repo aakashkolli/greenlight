@@ -23,6 +23,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { parseEther } from 'viem';
 import { useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi';
 import { GRANT_ABI, API_BASE } from '@/lib/contracts';
+import { DEMO_MODE } from '@/lib/data';
 
 interface DepositModalProps {
   isOpen: boolean;
@@ -102,6 +103,7 @@ export function DepositModal({
   }, [writeError, toast]);
 
   const handleDeposit = () => {
+    if (DEMO_MODE) return;
     if (!isValidAmount) return;
     hasConfirmed.current = false;
     reset();
@@ -159,11 +161,13 @@ export function DepositModal({
             Cancel
           </Button>
           <Button
-            colorScheme="teal"
+            bg="brand.600"
+            color="white"
+            _hover={{ bg: 'brand.700' }}
             onClick={handleDeposit}
             isLoading={isPending || isConfirming}
             loadingText={isConfirming ? 'Confirming...' : 'Sending...'}
-            isDisabled={!address || !isValidAmount}
+            isDisabled={!address || !isValidAmount || DEMO_MODE}
           >
             Deposit
           </Button>

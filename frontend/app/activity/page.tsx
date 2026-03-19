@@ -11,7 +11,6 @@ import {
   Tr,
   Th,
   Td,
-  Badge,
   Spinner,
   Alert,
   AlertIcon,
@@ -24,39 +23,18 @@ import Link from 'next/link';
 import { formatEther } from 'viem';
 import { useAccount } from 'wagmi';
 import { Navbar } from '@/components/Navbar';
-import { API_BASE } from '@/lib/contracts';
-import { Project } from '@/lib/types';
-
-interface ContributionWithProject {
-  id: string;
-  amount: string;
-  txHash: string;
-  refunded: boolean;
-  createdAt: string;
-  project: { id: string; title: string };
-}
-
-interface UserData {
-  walletAddress: string;
-  projects: Project[];
-  contributions: ContributionWithProject[];
-}
+import { UserActivity, getUserActivity } from '@/lib/data';
 
 export default function ActivityPage() {
   const { address, isConnected } = useAccount();
-  const [userData, setUserData] = useState<UserData | null>(null);
+  const [userData, setUserData] = useState<UserActivity | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!address) return;
     setLoading(true);
-    fetch(`${API_BASE}/users/${address}`)
-      .then((r) => {
-        if (r.status === 404) return null;
-        if (!r.ok) throw new Error('Failed to fetch activity');
-        return r.json();
-      })
+    getUserActivity(address)
       .then((data) => {
         setUserData(data);
         setLoading(false);
@@ -68,7 +46,7 @@ export default function ActivityPage() {
   }, [address]);
 
   return (
-    <Box minH="100vh" bg="gray.50">
+    <Box minH="100vh" bg="#f4f8fb">
       <Navbar />
 
       <Container maxW="5xl" py={10}>
@@ -96,8 +74,7 @@ export default function ActivityPage() {
 
         {isConnected && !loading && !error && (
           <VStack spacing={10} align="stretch">
-            {/* My Projects */}
-            <Box bg="white" borderRadius="lg" borderWidth="1px" overflow="hidden">
+            <Box bg="white" borderRadius="xl" borderWidth="1px" overflow="hidden">
               <Box p={4} borderBottomWidth="1px">
                 <Heading size="md">My Projects ({userData?.projects.length ?? 0})</Heading>
               </Box>
@@ -117,7 +94,7 @@ export default function ActivityPage() {
                     {userData.projects.map((p) => (
                       <Tr key={p.id}>
                         <Td>
-                          <ChakraLink as={Link} href={`/project/${p.id}`} color="teal.600">
+                          <ChakraLink as={Link} href={`/project/${p.id}`} color="brand.600">
                             {p.title}
                           </ChakraLink>
                         </Td>
@@ -131,8 +108,7 @@ export default function ActivityPage() {
               )}
             </Box>
 
-            {/* My Contributions */}
-            <Box bg="white" borderRadius="lg" borderWidth="1px" overflow="hidden">
+            <Box bg="white" borderRadius="xl" borderWidth="1px" overflow="hidden">
               <Box p={4} borderBottomWidth="1px">
                 <Heading size="md">My Contributions ({userData?.contributions.length ?? 0})</Heading>
               </Box>
@@ -152,15 +128,15 @@ export default function ActivityPage() {
                     {userData.contributions.map((c) => (
                       <Tr key={c.id} opacity={c.refunded ? 0.6 : 1}>
                         <Td>
-                          <ChakraLink as={Link} href={`/project/${c.project.id}`} color="teal.600">
+                          <ChakraLink as={Link} href={`/project/${c.project.id}`} color="brand.600">
                             {c.project.title}
                           </ChakraLink>
                         </Td>
                         <Td isNumeric>{parseFloat(formatEther(BigInt(c.amount))).toFixed(4)} ETH</Td>
                         <Td>
-                          {c.refunded
-                            ? <Badge colorScheme="orange">Refunded</Badge>
-                            : <Badge colorScheme="green">Active</Badge>}
+                          <Text fontSize="sm" fontWeight="bold" color="black">
+                            {c.refunded ? 'Refunded' : 'Active'}
+                          </Text>
                         </Td>
                         <Td>{new Date(c.createdAt).toLocaleDateString()}</Td>
                       </Tr>

@@ -26,7 +26,7 @@ export function ProgressBar({ amountRaised, goalAmount, showDetails = true }: Pr
   return (
     <Box>
       <HStack justify="space-between" mb={1} align="baseline">
-        <Text fontSize="sm" fontWeight="bold" color={isFunded ? 'green.500' : 'teal.600'}>
+        <Text fontSize="sm" fontWeight="bold" color={isFunded ? 'green.600' : 'brand.700'}>
           {fmtEth(raised)} ETH
         </Text>
         <Text fontSize="xs" color="gray.400" fontWeight="medium">
@@ -35,14 +35,14 @@ export function ProgressBar({ amountRaised, goalAmount, showDetails = true }: Pr
       </HStack>
       <Progress
         value={cappedPct}
-        colorScheme={isFunded ? 'green' : 'teal'}
+        colorScheme={isFunded ? 'green' : 'cyan'}
         borderRadius="full"
         size="sm"
         bg="gray.100"
       />
       {showDetails && (
-        <Text fontSize="xs" color="gray.400" mt={1}>
-          goal: {fmtEth(goal)} ETH
+        <Text fontSize="sm" color="black" fontWeight="semibold" mt={1}>
+          Goal: {fmtEth(goal)} ETH
         </Text>
       )}
     </Box>

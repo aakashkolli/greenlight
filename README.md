@@ -1,191 +1,123 @@
 # Greenlight
 
-A full-stack crowdfunding platform where funds are held in Ethereum smart contract escrow — released to the creator only when the funding goal is met, and returned automatically to backers if it isn't.
+Greenlight is a Web3 crowdfunding app with escrow guarantees.
 
-**Live stack:** Next.js · Solidity · Express · PostgreSQL · Privy · wagmi/viem · Chakra UI
+> **Personal portfolio project.** This is not a functional platform for real-life fundraising. No real ETH can be sent or received through the deployed site. Wallet connection (MetaMask or any injected wallet) works, but all transaction buttons — fund, withdraw, and refund — are intentionally disabled in demo mode. The live site at [https://aakashkolli.github.io/greenlight/](https://aakashkolli.github.io/greenlight/) runs entirely on static mock data.
 
----
+Backers fund projects in ETH. Funds stay locked in a smart contract until the goal is reached. If a campaign misses its goal, contributors can claim refunds.
 
-## How it works
+This repo is designed to be portfolio friendly in two modes:
 
-1. A creator connects their wallet and deploys a `Grant` escrow contract with a funding goal and deadline
-2. Backers deposit ETH directly into the escrow — funds never touch Greenlight's servers
-3. If the goal is met: the creator can withdraw the full amount
-4. If the deadline passes unfunded: every backer can claim a full refund on-chain
-5. A backend event listener watches the blockchain in real time and keeps the database in sync
+- Demo mode for recruiters, static hosting, and quick evaluation
+- Live mode for full local blockchain and backend workflows
 
----
+## Product pitch
 
-## Project structure
+- Fund real ideas with transparent on-chain escrow
+- Remove trust overhead with contract-enforced refunds
+- Keep UX clean with a modern frontend and realistic sample campaigns
+
+## Tech stack
+
+- Frontend: Next.js App Router, Chakra UI, wagmi, viem
+- Backend: Express, Prisma, PostgreSQL
+- Smart contracts: Solidity, Hardhat, OpenZeppelin
+
+## Repository layout
 
 ```text
 greenlight/
-├── contracts/   Solidity escrow contracts (Hardhat + OpenZeppelin)
-├── backend/     Express REST API · Prisma ORM · blockchain event listener
-└── frontend/    Next.js 14 App Router · Chakra UI · wagmi v2 · Privy auth
+├── contracts/   Solidity escrow contracts and tests
+├── backend/     REST API, Prisma schema, blockchain listener
+└── frontend/    Next.js UI, wallet connect, mock/live data modes
 ```
 
----
-
-## Local setup
+## Run the project
 
 ### Prerequisites
 
-| Tool       | Version                   |
-| ---------- | ------------------------- |
-| Node.js    | ≥ 20                      |
-| PostgreSQL | ≥ 14 (running locally)    |
+- Node.js 20+
+- PostgreSQL 14+ for live mode
 
-### 1. Clone and install
+### Install
 
 ```bash
-git clone https://github.com/<your-username>/greenlight.git
-cd greenlight
 npm install
 ```
 
-### 2. Configure environment
+### Environment
+
+Copy the example env file and set values as needed:
 
 ```bash
 cp .env.example .env
 ```
 
-Fill in your values:
+Important variables:
 
 ```env
-DATABASE_URL=postgresql://<pg_user>@localhost:5432/greenlight?schema=public
+NEXT_PUBLIC_USE_MOCK_DATA=true
+NEXT_PUBLIC_CHAIN=hardhat
 NEXT_PUBLIC_CHAIN_RPC=http://127.0.0.1:8545
-NEXT_PUBLIC_FACTORY_ADDRESS=        # filled automatically by npm run deploy
 NEXT_PUBLIC_API_URL=http://localhost:4000
+NEXT_PUBLIC_FACTORY_ADDRESS=0x...
+DATABASE_URL=postgresql://<pg_user>@localhost:5432/greenlight?schema=public
 PORT=4000
-NEXT_PUBLIC_PRIVY_APP_ID=           # get from dashboard.privy.io
-PRIVY_APP_SECRET=                   # server-side only, never exposed to browser
 ```
 
-> `frontend/.env.local` and `backend/.env` are symlinked to the root `.env`.
+### Demo mode (recommended for portfolio)
 
-### 3. Create the database
+Demo mode needs only the frontend and works with static mock data.
 
 ```bash
-createdb greenlight
+npm --workspace frontend run dev
 ```
 
-### 4. Start the local blockchain (Terminal 1)
+### Live mode (full stack)
 
 ```bash
 npm run dev:chain
-```
-
-Starts Hardhat on `http://127.0.0.1:8545` with 20 pre-funded accounts (10,000 ETH each).
-
-### 5. Deploy contracts (Terminal 2)
-
-```bash
 npm run deploy
-```
-
-Deploys `GrantFactory` and writes `NEXT_PUBLIC_FACTORY_ADDRESS` to `.env` automatically.
-
-### 6. Initialize the database
-
-```bash
 npm run db:setup
-```
-
-Runs `prisma db push` and seeds sample projects.
-
-### 7. Start the app
-
-```bash
 npm run dev
 ```
 
-| Service      | URL                                        |
-| ------------ | ------------------------------------------ |
-| Frontend     | <http://localhost:3000>                    |
-| Backend API  | <http://localhost:4000>                    |
+## Key scripts
 
----
+- `npm run dev` starts backend and frontend
+- `npm run dev:chain` starts Hardhat local chain
+- `npm run deploy` deploys contracts
+- `npm run db:setup` prepares DB schema and seed data
+- `npm run test:contracts` runs contract tests
+- `npm --workspace frontend run build` builds frontend for production
+- `npm --workspace frontend run build:github-pages` exports static frontend for GitHub Pages
 
-## Scripts
+## GitHub Pages deployment
 
-| Command                  | Description                                    |
-| ------------------------ | ---------------------------------------------- |
-| `npm run dev`            | Start backend + frontend                       |
-| `npm run dev:chain`      | Start Hardhat local blockchain                 |
-| `npm run deploy`         | Deploy contracts, update `.env`                |
-| `npm run db:setup`       | Create tables + seed data                      |
-| `npm run db:reset`       | Drop all tables (run after restarting Hardhat) |
-| `npm run seed`           | Re-seed sample projects                        |
-| `npm run test:contracts` | Run 17 smart contract unit tests               |
+Greenlight supports a static export path for GitHub Pages in demo mode.
 
----
-
-## Tests
-
-### Smart contract unit tests
+1. Keep `NEXT_PUBLIC_USE_MOCK_DATA=true`
+2. Build with the GitHub Pages script
+3. Publish `frontend/out` to Pages
 
 ```bash
-npm run test:contracts
+cd frontend
+GITHUB_REPOSITORY=<owner>/<repo> npm run build:github-pages
 ```
 
-Covers deposit, withdraw, refund, all revert conditions, reentrancy protection, and deadline enforcement (17 tests).
+The build automatically configures `basePath`, `assetPrefix`, and static output when `GITHUB_PAGES=true`.
 
-### End-to-end integration test
+## Recruiter and portfolio notes
 
-Requires `npm run dev:chain` and the backend running:
+- Demo mode ensures the app is usable without blockchain nodes, API servers, or DB setup
+- Mock projects are realistic and designed to show product UX, not placeholder lorem ipsum
+- Wallet connect works with injected wallets like MetaMask
+- Transaction actions are intentionally disabled in demo mode so reviewers can explore safely
+- Live mode remains available for full on-chain and backend demonstrations
 
-```bash
-cd contracts && npx hardhat run scripts/test_e2e.ts --network localhost
-```
+## What to highlight in interviews
 
-Runs 9 checks: contract deployment, API registration, deposit, event sync, withdrawal, refund, idempotent contribution recording, and user data retrieval.
-
-### TypeScript
-
-```bash
-cd backend  && npx tsc --noEmit
-cd frontend && npx tsc --noEmit
-```
-
----
-
-## Wallet login
-
-Greenlight uses [Privy](https://privy.io) — no browser extension required. Users can sign in with:
-
-- Email
-- Google
-- An existing wallet (MetaMask, Rainbow, etc.)
-
-To use your own Privy app, create a free account at [dashboard.privy.io](https://dashboard.privy.io), add `http://localhost:3000` as an allowed origin, and set `NEXT_PUBLIC_PRIVY_APP_ID` in `.env`.
-
----
-
-## Troubleshooting
-
-### Port 8545 already in use
-
-```bash
-lsof -ti:8545 | xargs kill
-```
-
-### `npm run deploy` fails — no signers / connection refused
-
-`npm run dev:chain` must be running first.
-
-### Stale data after restarting Hardhat
-
-Hardhat resets contract addresses on restart. Clear and re-seed:
-
-```bash
-npm run db:reset && npm run db:setup
-```
-
-### `DATABASE_URL` not found
-
-Re-create the backend symlink:
-
-```bash
-cd backend && ln -sf ../.env .env
-```
+- Escrow and refund mechanics in `contracts/`
+- Event-driven backend sync from blockchain to API
+- Frontend architecture that supports both live APIs and static mock data
+- Deployment strategy that covers both local full-stack and GitHub Pages portfolio hosting

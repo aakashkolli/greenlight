@@ -19,15 +19,17 @@ import {
   Stat,
   StatLabel,
   StatNumber,
+  Wrap,
+  WrapItem,
 } from '@chakra-ui/react';
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { ProjectCard } from '@/components/ProjectCard';
 import { Navbar } from '@/components/Navbar';
-import { API_BASE } from '@/lib/contracts';
 import { Project, ProjectStatus, getProjectStatus } from '@/lib/types';
 import { useDebounce } from '@/lib/useDebounce';
 import { formatEther } from 'viem';
+import { listProjects } from '@/lib/data';
 
 type Filter = 'all' | ProjectStatus;
 
@@ -50,12 +52,10 @@ export default function HomePage() {
   const debouncedSearch = useDebounce(search, 300);
 
   const fetchProjects = useCallback((cursor?: string) => {
-    const url = cursor ? `${API_BASE}/projects?cursor=${cursor}` : `${API_BASE}/projects`;
-    return fetch(url)
-      .then((r) => r.json())
+    return listProjects(cursor)
       .then((res) => {
         const incoming: Project[] = Array.isArray(res.data) ? res.data : [];
-        setProjects((prev) => cursor ? [...prev, ...incoming] : incoming);
+        setProjects((prev) => (cursor ? [...prev, ...incoming] : incoming));
         setNextCursor(res.nextCursor ?? null);
       });
   }, []);
@@ -94,47 +94,41 @@ export default function HomePage() {
   }, [projects]);
 
   return (
-    <Box minH="100vh" bg="gray.50">
+    <Box minH="100vh" bg="#f4f8fb">
       <Navbar />
 
-      {/* Hero */}
       <Box
         position="relative"
-        bgGradient="linear(to-br, teal.700, teal.500)"
-        py={20}
+        bgGradient="linear(135deg, #0f172a 0%, #0b5f76 45%, #06b6d4 100%)"
+        py={{ base: 14, md: 20 }}
         px={6}
         overflow="hidden"
       >
-        {/* Decorative circles */}
-        <Box position="absolute" top="-60px" right="-60px" w="300px" h="300px" borderRadius="full" bg="whiteAlpha.100" />
-        <Box position="absolute" bottom="-80px" left="10%" w="200px" h="200px" borderRadius="full" bg="whiteAlpha.50" />
-
         <Container maxW="4xl" textAlign="center" position="relative">
           <Text
-            color="teal.200"
+            color="#bae6fd"
             fontSize="sm"
             fontWeight="semibold"
             letterSpacing="widest"
             textTransform="uppercase"
             mb={3}
           >
-            Crowdfunding, Reimagined
+            Escrow-first crowdfunding
           </Text>
-          <Heading color="white" size="2xl" mb={4} lineHeight="1.2">
-            Back Ideas You Believe In
+          <Heading color="white" size="2xl" mb={4} lineHeight="1.2" fontWeight="normal">
+            Fund What Matters. Refunds If It Fails.
           </Heading>
-          <Text color="teal.100" fontSize="lg" mb={10} maxW="2xl" mx="auto" lineHeight="1.7">
-            Your contribution is held in escrow until the funding goal is reached.
-            If a project falls short, you get it back automatically — no forms, no fees, no waiting.
+          <Text color="#e0f2fe" fontSize={{ base: 'md', md: 'lg' }} mb={8} maxW="2xl" mx="auto" lineHeight="1.7">
+            Every contribution stays in escrow until the goal is hit. If a campaign closes below goal, funds auto-return to your wallet. No forms. No fees. No waiting.
           </Text>
-          <HStack justify="center" spacing={4} flexWrap="wrap">
+          <HStack justify="center" spacing={4} flexWrap="wrap" mb={4}>
             <Link href="/create">
-              <Button size="lg" colorScheme="white" bg="white" color="teal.700" _hover={{ bg: 'gray.100' }} shadow="md">
+              <Button size="lg" bg="white" color="brand.700" _hover={{ bg: '#e8f7ff' }} shadow="md">
                 Launch Your Project
               </Button>
             </Link>
             <Link href="#projects">
-              <Button size="lg" variant="outline" color="white" borderColor="whiteAlpha.500" _hover={{ bg: 'whiteAlpha.200' }}>
+              <Button size="lg" variant="outline" color="white" borderColor="whiteAlpha.700" _hover={{ bg: 'whiteAlpha.250' }}>
                 Browse Projects
               </Button>
             </Link>
@@ -142,23 +136,22 @@ export default function HomePage() {
         </Container>
       </Box>
 
-      {/* Stats bar */}
       {!loading && projects.length > 0 && (
-        <Box bg="white" borderBottomWidth="1px">
+        <Box bg="#f8fcff" borderBottomWidth="1px" borderColor="blackAlpha.200">
           <Container maxW="4xl">
             <SimpleGrid columns={3} py={6}>
               <Stat textAlign="center">
-                <StatNumber color="teal.600" fontSize="2xl">{stats.total}</StatNumber>
+                <StatNumber color="brand.700" fontSize="2xl">{stats.total}</StatNumber>
                 <StatLabel color="gray.500" fontSize="xs" textTransform="uppercase" letterSpacing="wide">Projects</StatLabel>
               </Stat>
               <Stat textAlign="center" borderX="1px" borderColor="gray.100">
-                <StatNumber color="teal.600" fontSize="2xl">
+                <StatNumber color="brand.700" fontSize="2xl">
                   {parseFloat(formatEther(stats.totalRaised)).toFixed(1)} ETH
                 </StatNumber>
                 <StatLabel color="gray.500" fontSize="xs" textTransform="uppercase" letterSpacing="wide">Total Raised</StatLabel>
               </Stat>
               <Stat textAlign="center">
-                <StatNumber color="teal.600" fontSize="2xl">{stats.active}</StatNumber>
+                <StatNumber color="brand.700" fontSize="2xl">{stats.active}</StatNumber>
                 <StatLabel color="gray.500" fontSize="xs" textTransform="uppercase" letterSpacing="wide">Active Now</StatLabel>
               </Stat>
             </SimpleGrid>
@@ -166,17 +159,16 @@ export default function HomePage() {
         </Box>
       )}
 
-      {/* Projects */}
       <Container maxW="6xl" py={12} id="projects">
         <Heading size="lg" mb={2}>
           Explore Projects
         </Heading>
         <Text color="gray.500" mb={6} fontSize="sm">
-          Discover and fund projects making a difference.
+          Back ambitious ideas with transparent funding rails.
         </Text>
 
-        {/* Search + Filter */}
-        <HStack mb={8} spacing={4} flexWrap="wrap">
+        <Wrap mb={8} spacing={4}>
+          <WrapItem>
           <InputGroup maxW="300px">
             <InputLeftElement pointerEvents="none" color="gray.400">
               <SearchIcon />
@@ -185,24 +177,27 @@ export default function HomePage() {
               placeholder="Search projects..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              bg="white"
+              bg="#fffdfa"
               borderRadius="lg"
             />
           </InputGroup>
+          </WrapItem>
+          <WrapItem>
           <ButtonGroup size="sm" isAttached>
             {(['all', 'active', 'funded', 'expired'] as Filter[]).map((f) => (
               <Button
                 key={f}
                 onClick={() => setFilter(f)}
-                colorScheme={filter === f ? 'teal' : 'gray'}
+                colorScheme={filter === f ? 'cyan' : 'gray'}
                 variant={filter === f ? 'solid' : 'outline'}
                 borderRadius={f === 'all' ? 'lg 0 0 lg' : f === 'expired' ? '0 lg lg 0' : '0'}
               >
-                {f.charAt(0).toUpperCase() + f.slice(1)}
+                {f === 'all' ? 'All' : f === 'active' ? 'Open' : f === 'funded' ? 'Successful' : 'Closed'}
               </Button>
             ))}
           </ButtonGroup>
-        </HStack>
+          </WrapItem>
+        </Wrap>
 
         {loading && (
           <Flex justify="center" py={16}>
@@ -213,7 +208,7 @@ export default function HomePage() {
         {error && (
           <Alert status="error" borderRadius="lg" mb={6}>
             <AlertIcon />
-            Failed to load projects: {error}. Make sure the backend is running.
+            Failed to load projects: {error}.
           </Alert>
         )}
 
@@ -225,7 +220,7 @@ export default function HomePage() {
             </Text>
             {projects.length === 0 && (
               <Link href="/create">
-                <Button mt={4} colorScheme="teal">Start the first project</Button>
+                <Button mt={4} bg="brand.600" color="white" _hover={{ bg: 'brand.700' }}>Start the first project</Button>
               </Link>
             )}
           </Box>
@@ -244,7 +239,7 @@ export default function HomePage() {
               isLoading={loadingMore}
               loadingText="Loading..."
               variant="outline"
-              colorScheme="teal"
+              colorScheme="cyan"
               borderRadius="lg"
             >
               Load more projects
@@ -253,13 +248,12 @@ export default function HomePage() {
         )}
       </Container>
 
-      {/* Footer */}
-      <Box bg="white" borderTopWidth="1px" py={8} mt={8}>
+      <Box bg="#f8fcff" borderTopWidth="1px" borderColor="blackAlpha.200" py={8} mt={8}>
         <Container maxW="6xl">
           <Flex justify="space-between" align="center" flexWrap="wrap" gap={4}>
-            <Text fontSize="sm" fontWeight="bold" color="teal.600">Greenlight</Text>
+            <Text fontSize="sm" fontWeight="bold" color="brand.700">Greenlight</Text>
             <Text fontSize="xs" color="gray.400">
-              Funds held in smart contract escrow · Built on Ethereum
+              Funds held in smart contract escrow. Built on Ethereum.
             </Text>
           </Flex>
         </Container>

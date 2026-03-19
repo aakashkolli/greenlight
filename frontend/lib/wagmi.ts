@@ -1,10 +1,16 @@
-import { createConfig } from '@privy-io/wagmi';
-import { hardhat } from 'viem/chains';
-import { http } from 'wagmi';
+import { createConfig, http } from 'wagmi';
+import { injected } from 'wagmi/connectors';
+import { hardhat, sepolia } from 'wagmi/chains';
+
+const hardhatRpc = process.env.NEXT_PUBLIC_CHAIN_RPC || 'http://127.0.0.1:8545';
+const sepoliaRpc = process.env.NEXT_PUBLIC_SEPOLIA_RPC;
 
 export const wagmiConfig = createConfig({
-  chains: [hardhat],
+  chains: [hardhat, sepolia],
+  connectors: [injected()],
+  ssr: true,
   transports: {
-    [hardhat.id]: http(process.env.NEXT_PUBLIC_CHAIN_RPC || 'http://127.0.0.1:8545'),
+    [hardhat.id]: http(hardhatRpc),
+    [sepolia.id]: http(sepoliaRpc),
   },
 });

@@ -1,32 +1,36 @@
 'use client';
 
-import { Box, Text, Button, Badge, VStack, HStack, Flex } from '@chakra-ui/react';
+import { Box, Text, Button, VStack, HStack, Flex } from '@chakra-ui/react';
 import { memo } from 'react';
 import { ProgressBar } from './ProgressBar';
 import Link from 'next/link';
 import { Project, getProjectStatus } from '@/lib/types';
-import { useDeadlineCountdown } from '@/lib/useDeadlineCountdown';
 import { projectGradient, projectInitials } from '@/lib/projectImage';
 
 interface ProjectCardProps {
   project: Project;
 }
 
-const STATUS_BADGE: Record<string, { label: string; colorScheme: string }> = {
-  funded:  { label: 'Funded',  colorScheme: 'green' },
-  expired: { label: 'Expired', colorScheme: 'red' },
-  active:  { label: 'Active',  colorScheme: 'teal' },
+const STATUS_LABEL: Record<string, string> = {
+  funded: 'Successful',
+  expired: 'Closed',
+  active: 'Open',
 };
 
 export const ProjectCard = memo(function ProjectCard({ project }: ProjectCardProps) {
   const status = getProjectStatus(project);
-  const badge = STATUS_BADGE[status];
-  const countdown = useDeadlineCountdown(project.deadline);
+  const statusLabel = STATUS_LABEL[status];
   const backerCount = project._count?.contributions ?? project.contributions?.length ?? 0;
+  const endDate = new Date(project.deadline).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
 
   return (
     <Box
       borderWidth="1px"
+      borderColor="gray.200"
       borderRadius="xl"
       overflow="hidden"
       shadow="sm"
@@ -37,7 +41,7 @@ export const ProjectCard = memo(function ProjectCard({ project }: ProjectCardPro
       flexDirection="column"
     >
       {/* Image / Gradient */}
-      {project.imageUrl ? (
+      {project.imageUrl && typeof project.imageUrl === 'string' && project.imageUrl.trim().length > 0 && project.imageUrl.startsWith('http') ? (
         // eslint-disable-next-line @next/next/no-img-element
         <Box as="img"
           src={project.imageUrl}
@@ -51,7 +55,7 @@ export const ProjectCard = memo(function ProjectCard({ project }: ProjectCardPro
         />
       ) : null}
       <Flex
-        display={project.imageUrl ? 'none' : 'flex'}
+        display={project.imageUrl && typeof project.imageUrl === 'string' && project.imageUrl.trim().length > 0 && project.imageUrl.startsWith('http') ? 'none' : 'flex'}
         style={{ background: projectGradient(project.id), height: '180px' }}
         align="center"
         justify="center"
@@ -66,24 +70,24 @@ export const ProjectCard = memo(function ProjectCard({ project }: ProjectCardPro
           <Text fontSize="md" fontWeight="bold" noOfLines={2} lineHeight="1.4">
             {project.title}
           </Text>
-          <Badge colorScheme={badge.colorScheme} flexShrink={0} borderRadius="full" px={2}>
-            {badge.label}
-          </Badge>
+          <Text fontSize="xs" fontWeight="bold" color="black" flexShrink={0}>
+            {statusLabel}
+          </Text>
         </HStack>
 
-        <Text fontSize="sm" color="gray.500" noOfLines={2} lineHeight="1.5">
+        <Text fontSize="sm" color="gray.600" noOfLines={2} lineHeight="1.5">
           {project.description}
         </Text>
 
         <ProgressBar amountRaised={project.amountRaised} goalAmount={project.goalAmount} />
 
-        <HStack justify="space-between" fontSize="xs" color="gray.400">
-          <Text>{countdown}</Text>
+        <HStack justify="space-between" fontSize="sm" color="black" fontWeight="semibold">
+          <Text>Ends {endDate}</Text>
           <Text>{backerCount} {backerCount === 1 ? 'backer' : 'backers'}</Text>
         </HStack>
 
         <Link href={`/project/${project.id}`}>
-          <Button colorScheme="teal" w="full" size="sm" borderRadius="lg">
+          <Button variant="outline" borderColor="brand.600" color="brand.600" _hover={{ bg: 'brand.50', borderColor: 'brand.700', color: 'brand.700' }} w="full" size="sm" borderRadius="lg">
             View Project
           </Button>
         </Link>

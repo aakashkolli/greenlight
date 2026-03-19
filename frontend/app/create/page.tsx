@@ -23,6 +23,7 @@ import { parseEther, decodeEventLog } from 'viem';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { Navbar } from '@/components/Navbar';
 import { GRANT_FACTORY_ABI, FACTORY_ADDRESS, API_BASE } from '@/lib/contracts';
+import { DEMO_MODE } from '@/lib/data';
 
 const IMAGE_URL_RE = /^https?:\/\/.+/;
 
@@ -152,6 +153,9 @@ export default function CreatePage() {
   }, [writeError, toast]);
 
   const handleSubmit = () => {
+    if (DEMO_MODE) {
+      return;
+    }
     if (!isConnected || !address || !isValid) return;
     hasSaved.current = false;
     setStep('deploying');
@@ -166,13 +170,13 @@ export default function CreatePage() {
   const descLen = form.description.trim().length;
 
   return (
-    <Box minH="100vh" bg="gray.50">
+    <Box minH="100vh" bg="#f4f8fb">
       <Navbar maxW="3xl" />
 
       <Container maxW="3xl" py={10}>
         <Heading mb={2}>Create a Project</Heading>
         <Text color="gray.500" mb={8} fontSize="sm">
-          Deploy a smart contract escrow and list your project for backers.
+          Deploy an escrow contract and publish your campaign.
         </Text>
 
         {!isConnected && (
@@ -255,7 +259,9 @@ export default function CreatePage() {
             </FormControl>
 
             <Button
-              colorScheme="teal"
+              bg="brand.600"
+              color="white"
+              _hover={{ bg: 'brand.700' }}
               w="full"
               size="lg"
               borderRadius="lg"
@@ -265,7 +271,7 @@ export default function CreatePage() {
                 step === 'saving' ? 'Saving to database...' :
                 step === 'deploying' ? 'Deploying contract...' : 'Confirm in wallet...'
               }
-              isDisabled={!isConnected || !isValid}
+              isDisabled={!isConnected || !isValid || DEMO_MODE}
               mt={2}
             >
               Deploy & Create Project
