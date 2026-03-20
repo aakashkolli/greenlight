@@ -27,7 +27,7 @@ const ghBasePath = process.env.GITHUB_PAGES === 'true' && repoName ? `/${repoNam
 
 export const metadata: Metadata = {
   title: 'GreenLight',
-  description: 'An open-source, smart-contract powered crowdfunding protocol. Capital is locked in a trustless vault and released in tranches upon milestone verification.',
+  description: 'An open-source, smart-contract powered crowdfunding protocol. Capital is locked in a trustless vault and released per milestone upon verification.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

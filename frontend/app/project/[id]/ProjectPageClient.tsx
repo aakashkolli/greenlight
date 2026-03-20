@@ -299,10 +299,10 @@ export default function ProjectPageClient({ params }: { params: { id: string } }
                         <Text color="#F4F4F5" fontWeight="600">{milestone.title}</Text>
                         <HStack spacing={2}>
                           <Badge bg="#18181B" color="#A1A1AA" border="1px solid #27272A" borderRadius="4px">
-                            {milestone.tranchePercent}% tranche
+                            {milestone.percent}%
                           </Badge>
                           {milestone.completed ? (
-                            <Badge bg="#00FF661A" color="#00FF66" border="1px solid #00FF6640" borderRadius="4px">
+                            <Badge bg="#18181B" color="#A1A1AA" border="1px solid #27272A" borderRadius="4px">
                               Completed
                             </Badge>
                           ) : (

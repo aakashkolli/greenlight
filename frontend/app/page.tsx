@@ -128,7 +128,7 @@ export default function HomePage() {
                 mb={8}
               >
                 An open-source, smart-contract powered crowdfunding protocol. Capital is locked in a
-                trustless vault and released in tranches upon milestone verification. Built with
+                trustless vault and released per milestone upon verification. Built with
                 Next.js, Solidity, and PostgreSQL.
               </Text>
 
@@ -229,8 +229,8 @@ export default function HomePage() {
             />
             <ProtocolStep
               step=""
-              title="3. Release Tranche or Auto-Revert"
-              description="Upon milestone approval, the verified tranche is unlocked via releaseTranche(). Upon failure, refundBackers() auto-routes remaining funds back to original backer wallets."
+              title="3. Release Milestone Funds or Auto-Revert"
+              description="Upon milestone approval, the verified milestone funds are unlocked. Upon failure, refundBackers() auto-routes remaining funds back to original backer wallets."
               code="Grant.releaseTranche(idx) | Grant.refundBackers() -> vault[backer] = 0"
             />
           </SimpleGrid>
