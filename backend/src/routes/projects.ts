@@ -5,7 +5,7 @@ export const projectsRouter = Router();
 
 const ETH_ADDR = /^0x[0-9a-fA-F]{40}$/;
 
-// POST /projects — create a new project
+// POST /projects - create a new project
 projectsRouter.post('/', async (req: Request, res: Response) => {
   try {
     const {
@@ -57,7 +57,7 @@ projectsRouter.post('/', async (req: Request, res: Response) => {
   }
 });
 
-// GET /projects — list projects with optional cursor pagination
+// GET /projects - list projects with optional cursor pagination
 projectsRouter.get('/', async (req: Request, res: Response) => {
   try {
     const cursor = req.query.cursor as string | undefined;
@@ -81,7 +81,7 @@ projectsRouter.get('/', async (req: Request, res: Response) => {
   }
 });
 
-// GET /projects/:id — get project by ID
+// GET /projects/:id - get project by ID
 projectsRouter.get('/:id', async (req: Request, res: Response) => {
   try {
     const project = await prisma.project.findUnique({

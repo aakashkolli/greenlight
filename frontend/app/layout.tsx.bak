@@ -1,0 +1,38 @@
+import type { Metadata } from 'next';
+import { Providers } from './providers';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { Inter, Space_Grotesk, JetBrains_Mono } from 'next/font/google';
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-space-grotesk',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-jetbrains-mono',
+});
+
+export const metadata: Metadata = {
+  title: 'GreenLight',
+  description: 'An open-source, smart-contract powered crowdfunding protocol. Capital is locked in a trustless vault and released in tranches upon milestone verification.',
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
+      <body suppressHydrationWarning>
+        <div id="app-root">
+          <Providers>
+            <ErrorBoundary>{children}</ErrorBoundary>
+          </Providers>
+        </div>
+      </body>
+    </html>
+  );
+}

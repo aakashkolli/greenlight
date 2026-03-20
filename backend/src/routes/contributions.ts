@@ -6,7 +6,7 @@ export const contributionsRouter = Router();
 const ETH_ADDR = /^0x[0-9a-fA-F]{40}$/;
 const TX_HASH  = /^0x[0-9a-fA-F]{64}$/;
 
-// POST /contributions — record a contribution (called by frontend + event listener)
+// POST /contributions - record a contribution (called by frontend + event listener)
 // Idempotent: duplicate txHash is a no-op (both paths converge here).
 contributionsRouter.post('/', async (req: Request, res: Response) => {
   try {
@@ -62,6 +62,62 @@ contributionsRouter.post('/', async (req: Request, res: Response) => {
     return res.status(201).json(contribution);
   } catch (err: any) {
     console.error('POST /contributions error:', err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /contributions/demo - demo mode simulation endpoint.
+//
+// Replicates exactly what blockchainListener.ts does when it receives a real
+// on-chain Deposit event: upsert a contribution row, recalculate amountRaised.
+// No txHash uniqueness required (we generate a timestamped fake hash).
+// This proves the Source-of-Truth event path works end-to-end without a wallet.
+contributionsRouter.post('/demo', async (req: Request, res: Response) => {
+  try {
+    const { projectId, walletAddress, amount, txHash } = req.body;
+
+    if (!projectId || !amount) {
+      return res.status(400).json({ error: 'projectId and amount are required' });
+    }
+
+    const normalizedAddr = (walletAddress as string | undefined)?.toLowerCase()
+      ?? '0xdemo000000000000000000000000000000000000';
+    const normalizedTx = (txHash as string | undefined)?.toLowerCase()
+      ?? `0xdemo${Date.now().toString(16).padStart(60, '0')}`;
+
+    // Mirror the blockchainListener pattern verbatim
+    await prisma.user.upsert({
+      where: { walletAddress: normalizedAddr },
+      update: {},
+      create: { walletAddress: normalizedAddr },
+    });
+
+    await prisma.contribution.upsert({
+      where: { txHash: normalizedTx },
+      update: {},
+      create: {
+        projectId,
+        walletAddress: normalizedAddr,
+        amount: amount.toString(),
+        txHash: normalizedTx,
+      },
+    });
+
+    const allContributions = await prisma.contribution.findMany({
+      where: { projectId, refunded: false },
+    });
+    const total = allContributions.reduce(
+      (sum: bigint, c: { amount: string }) => sum + BigInt(c.amount),
+      BigInt(0),
+    );
+    const updated = await prisma.project.update({
+      where: { id: projectId },
+      data: { amountRaised: total.toString() },
+    });
+
+    return res.status(201).json({ ok: true, project: updated });
+  } catch (err: any) {
+    console.error('POST /contributions/demo error:', err);
     return res.status(500).json({ error: err.message });
   }
 });

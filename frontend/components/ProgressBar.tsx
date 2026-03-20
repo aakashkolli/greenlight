@@ -41,7 +41,7 @@ export function ProgressBar({ amountRaised, goalAmount, showDetails = true }: Pr
         </Text>
       </HStack>
 
-      {/* Custom progress bar — avoids Chakra Progress dark-mode quirks */}
+      {/* Custom progress bar - avoids Chakra Progress dark-mode quirks */}
       <Box bg="#1F1F23" borderRadius="full" h="4px" overflow="hidden">
         <Box
           h="full"

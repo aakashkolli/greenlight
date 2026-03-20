@@ -4,12 +4,15 @@ import { Box, Flex, Text, HStack, Show, Hide } from '@chakra-ui/react';
 import Link from 'next/link';
 import { WalletButton } from './WalletButton';
 import MobileMenu from './MobileMenu';
+import { useDemoMode } from '@/lib/DemoModeContext';
 
 interface NavbarProps {
   maxW?: string;
 }
 
 export function Navbar({ maxW = '6xl' }: NavbarProps) {
+  const { demoActive } = useDemoMode();
+
   return (
     <Box
       bg="rgba(9, 9, 11, 0.85)"
@@ -18,7 +21,7 @@ export function Navbar({ maxW = '6xl' }: NavbarProps) {
       py={4}
       px={6}
       position="sticky"
-      top={0}
+      top={demoActive ? '37px' : 0}
       zIndex={50}
       backdropFilter="blur(12px)"
     >

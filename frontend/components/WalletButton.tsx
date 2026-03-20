@@ -56,7 +56,7 @@ export function WalletButton() {
       );
     }
 
-    // Demo session active — show fake connected address
+    // Demo session active - show fake connected address
     return (
       <Menu>
         <MenuButton

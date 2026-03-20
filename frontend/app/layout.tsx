@@ -5,14 +5,14 @@ import React from 'react';
 const Providers = dynamic(() => import('./providers').then((m) => m.Providers), { ssr: false });
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ColorModeScript } from '@chakra-ui/react';
-import { Inter, Space_Grotesk, JetBrains_Mono } from 'next/font/google';
+import { Inter, Sora, JetBrains_Mono } from 'next/font/google';
 
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
 });
 
-const spaceGrotesk = Space_Grotesk({
+const displayFont = Sora({
   subsets: ['latin'],
   variable: '--font-space-grotesk',
 });
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" className={`${inter.variable} ${displayFont.variable} ${jetbrainsMono.variable}`}>
       <body suppressHydrationWarning>
         <Script
           id="gh-pages-route-recovery"

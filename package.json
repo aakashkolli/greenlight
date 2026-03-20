@@ -8,9 +8,10 @@
     "contracts"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:prewarm\"",
     "dev:frontend": "npm --workspace frontend run dev",
     "dev:backend": "npm --workspace backend run dev",
+    "dev:prewarm": "node scripts/prewarm-dev.mjs",
     "dev:chain": "npm --workspace contracts run node",
     "deploy": "npm --workspace contracts run deploy",
     "db:push": "npm --workspace backend run db:push",

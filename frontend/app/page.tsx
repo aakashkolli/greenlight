@@ -1,4 +1,4 @@
-// Server Component — no 'use client'.
+// Server Component - no 'use client'.
 // All interactive state (search, filter, wallet) lives in leaf Client Components.
 // Chakra UI v2 components render as static HTML on the server and are hydrated
 // with styles by ChakraProvider (a Client Component in providers.tsx).
@@ -148,7 +148,7 @@ export default function HomePage() {
                     }}
                     transition="all 0.15s ease"
                   >
-                    View Protocol Mechanics
+                    View Protocol
                   </Button>
                 </Link>
                 <Link href="#projects">
@@ -167,7 +167,7 @@ export default function HomePage() {
                 </Link>
               </HStack>
 
-              {/* Trust signals — plain text, no mono font */}
+              {/* Trust signals - plain text, no mono font */}
               <HStack spacing={6} flexWrap="wrap">
                 {[{}, {}, {}].map((_, i) => (
                   <HStack key={i} spacing={2} align="center">
@@ -195,7 +195,7 @@ export default function HomePage() {
         </Container>
       </Box>
 
-      {/* ── Protocol Mechanics ── */}
+      {/* ── Protocol ── */}
       <Box id="mechanics" py={{ base: 16, md: 24 }} px={6} borderBottom="1px solid #1F1F23">
         <Container maxW="6xl">
           <Box mb={12}>
@@ -207,7 +207,7 @@ export default function HomePage() {
               color="#F4F4F5"
               mb={3}
             >
-              Protocol Mechanics & Data Flow
+              Protocol & Dataflow
             </Heading>
             <Text color="#71717A" fontSize="md" maxW="lg">
               A trustless, three-phase lifecycle governs every capital commitment on GreenLight.
@@ -217,19 +217,19 @@ export default function HomePage() {
           <SimpleGrid columns={{ base: 1, md: 3 }} spacing={5}>
             <ProtocolStep
               step=""
-              title="Backers Deposit into the Vault"
-              description="Backers transfer ETH or ERC-20 tokens directly into the Grant.sol escrow contract. Funds are held autonomously — no intermediaries, no multisig."
+              title="1. Backers Deposit into the Vault"
+              description="Backers transfer ETH or ERC-20 tokens directly into the Grant.sol escrow contract. Funds are held autonomously - no intermediaries, no multisig."
               code="Grant.deposit(milestoneId) -> vault[msg.sender] += msg.value"
             />
             <ProtocolStep
               step=""
-              title="Event-Driven Off-Chain Sync"
+              title="2. Event-Driven Off-Chain Sync"
               description="A Node.js service subscribes to contract events via WebSocket. Each Deposit and Refund event is indexed to PostgreSQL, tracking progress against predefined milestones."
               code="WS -> blockchainListener.ts -> Prisma -> PostgreSQL"
             />
             <ProtocolStep
               step=""
-              title="Release Tranche or Auto-Revert"
+              title="3. Release Tranche or Auto-Revert"
               description="Upon milestone approval, the verified tranche is unlocked via releaseTranche(). Upon failure, refundBackers() auto-routes remaining funds back to original backer wallets."
               code="Grant.releaseTranche(idx) | Grant.refundBackers() -> vault[backer] = 0"
             />

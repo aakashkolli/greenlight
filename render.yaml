@@ -1,0 +1,31 @@
+# Render service template (example) - customize in Render UI when creating services
+services:
+  - type: web
+    name: greenlight-backend
+    env: node
+    repo: "<GIT_REPO_URL>"
+    branch: main
+    buildCommand: "cd backend && npm install && npm run build"
+    startCommand: "cd backend && npm run start"
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_CHAIN_RPC
+        sync: false
+      - key: NEXT_PUBLIC_FACTORY_ADDRESS
+        sync: false
+      - key: NEXT_PUBLIC_PRIVY_APP_ID
+        sync: false
+
+  - type: worker
+    name: greenlight-blockchain-listener
+    env: node
+    repo: "<GIT_REPO_URL>"
+    branch: main
+    buildCommand: "cd backend && npm install && npm run build"
+    startCommand: "cd backend && node dist/services/blockchainListener.js"
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_CHAIN_RPC
+        sync: false

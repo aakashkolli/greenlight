@@ -7,17 +7,17 @@
  * (contracts/contracts/Grant.sol). The function shown is refund(), which
  * demonstrates the three patterns a recruiter or senior engineer would look for:
  *
- *   1. Custom errors        — cheaper than require strings, typed reversion
- *   2. CEI (Checks-Effects-Interactions) — contributions[msg.sender] = 0
+ *   1. Custom errors        - cheaper than require strings, typed reversion
+ *   2. CEI (Checks-Effects-Interactions) - contributions[msg.sender] = 0
  *                             before the external .call, eliminating re-entrancy
- *   3. nonReentrant guard   — defence-in-depth via OpenZeppelin ReentrancyGuard
+ *   3. nonReentrant guard   - defence-in-depth via OpenZeppelin ReentrancyGuard
  *
  * No mock data. No placeholder snippets. Extracted verbatim from source.
  */
 
 import { Box, Flex, HStack, Text } from '@chakra-ui/react';
 
-// VS Code Dark+ palette — identical to what the actual file looks like in the IDE
+// VS Code Dark+ palette - identical to what the actual file looks like in the IDE
 const T = {
   comment:  '#6A9955',
   keyword:  '#569CD6',
@@ -85,7 +85,7 @@ export function VaultTerminal() {
           <Box w="10px" h="10px" borderRadius="full" bg="#28C840" />
         </HStack>
         <Text color="#52525B" fontSize="11px" fontFamily="var(--font-jetbrains-mono), monospace">
-          Grant.sol — refund()
+          Grant.sol - refund()
         </Text>
         <Box w="52px" />
       </Flex>

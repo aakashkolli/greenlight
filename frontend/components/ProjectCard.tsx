@@ -142,7 +142,7 @@ export const ProjectCard = memo(function ProjectCard({ project }: ProjectCardPro
           <Text>{backerCount} {backerCount === 1 ? 'backer' : 'backers'}</Text>
         </HStack>
 
-        {/* Demo deposit button — only visible when demo session is active */}
+        {/* Demo deposit button - only visible when demo session is active */}
         {showDemoDeposit && (
           <Button
             w="full"

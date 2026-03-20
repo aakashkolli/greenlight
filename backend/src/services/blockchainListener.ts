@@ -3,7 +3,7 @@ import { prisma } from '../lib/prisma';
 import dotenv from 'dotenv';
 import path from 'path';
 
-// __dirname = backend/src/services → ../../../ = repo root
+// __dirname = backend/src/services -> ../../../ = repo root
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
 // Inline structured logger
@@ -16,7 +16,7 @@ const log = {
   error: (...a: unknown[]) => { if (currentLevel <= 3) console.error(new Date().toISOString(), '[ERROR]', ...a); },
 };
 
-// Minimal ABIs — only the events we care about
+// Minimal ABIs - only the events we care about
 const FACTORY_ABI = [
   'event GrantCreated(uint256 indexed grantId, address indexed grantAddress, address indexed creator, uint256 goalAmount, uint256 fundingDeadline)',
 ];
@@ -51,7 +51,7 @@ export async function startListener(): Promise<void> {
       await subscribeToGrant(grantAddress.toLowerCase(), provider);
     });
 
-    // Rehydrate — subscribe to all existing grants on startup
+    // Rehydrate - subscribe to all existing grants on startup
     const existingProjects = await prisma.project.findMany({
       select: { grantContractAddress: true },
     });

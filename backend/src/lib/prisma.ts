@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 
-// Singleton PrismaClient — prevents exhausting the connection pool
+// Singleton PrismaClient - prevents exhausting the connection pool
 // during hot-reload in development.
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 

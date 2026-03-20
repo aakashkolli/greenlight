@@ -115,7 +115,7 @@ export const ProjectsSection = React.memo(function ProjectsSection() {
 
   return (
     <>
-      {/* Stats bar — only after load */}
+      {/* Stats bar - only after load */}
       {!loading && projects.length > 0 && (
         <Box borderY="1px solid #1F1F23" bg="#0D0D0F" py={6}>
           <Container maxW="4xl">

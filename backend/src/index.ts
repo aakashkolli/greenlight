@@ -6,7 +6,7 @@ import { projectsRouter } from './routes/projects';
 import { contributionsRouter } from './routes/contributions';
 import { usersRouter } from './routes/users';
 
-// __dirname = backend/src → ../../ = repo root
+// __dirname = backend/src -> ../../ = repo root
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const app = express();

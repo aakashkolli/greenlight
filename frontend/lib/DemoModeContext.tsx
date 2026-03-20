@@ -61,7 +61,7 @@ const DemoModeContext = createContext<DemoModeContextType>(DEFAULT_CTX);
 
 const LS_KEY = 'gl_demo_v1';
 
-// Deterministic fake address — looks real enough for a portfolio demo
+// Deterministic fake address - looks real enough for a portfolio demo
 const DEMO_WALLET = '0xD3e0aBcDeF1234567890AbCdEf1234567890abcD' as const;
 // Default amount deposited when no explicit amount is provided.
 const DEMO_DEPOSIT_WEI = 250_000_000_000_000_000n; // 0.25 ETH
@@ -148,7 +148,7 @@ export function DemoModeProvider({ children }: { children: ReactNode }) {
       // ── 3. Backend sync (non-blocking) ──────────────────────────────────
       // Mirrors what blockchainListener.ts does when it sees a real Deposit
       // event: upsert a contribution row, recalculate amountRaised.
-      // Fire-and-forget — demo UX never waits on the backend.
+      // Fire-and-forget - demo UX never waits on the backend.
       if (API_BASE) {
         const fakeTxHash = `0xdemo${Date.now().toString(16).padStart(60, '0')}`;
         fetch(`${API_BASE}/contributions/demo`, {
@@ -161,7 +161,7 @@ export function DemoModeProvider({ children }: { children: ReactNode }) {
             txHash: fakeTxHash,
           }),
         }).catch(() => {
-          // Backend unavailable in demo — that's fine, UI already updated
+          // Backend unavailable in demo - that's fine, UI already updated
         });
       }
     },

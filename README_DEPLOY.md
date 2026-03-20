@@ -1,4 +1,4 @@
-Deployment guide — GitHub Pages (frontend) + Render (backend)
+Deployment guide - GitHub Pages (frontend) + Render (backend)
 ============================================================
 
 This repo is now configured so the frontend can be deployed as a static export to GitHub Pages while the backend runs on Render.

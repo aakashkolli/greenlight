@@ -1,6 +1,6 @@
-# Greenlight
+# GreenLight
 
-Greenlight is a Web3 crowdfunding app with on-chain escrow and refunds for backers.
+GreenLight is a Web3 crowdfunding app with on-chain escrow and refunds for backers.
 
 Originally built as a personal portfolio project, this repository is now documented as a public demo application and should not be used for real fundraising or real funds.
 
@@ -18,21 +18,21 @@ Backers fund projects in ETH. Funds stay locked in a smart contract until the go
 
 ```mermaid
 flowchart LR
-	U[Browser / Next.js app]
-	API["Express REST API<br>(Node.js)"]
-	DB["PostgreSQL<br>via Prisma"]
-	Chain["Local Ethereum chain<br>(Hardhat)"]
-	Contracts["Grant & GrantFactory<br>Solidity contracts"]
-	Listener["Blockchain listener<br>(ethers.js)"]
+  U[Browser / Next.js app]
+  API["Express REST API<br>(Node.js)"]
+  DB["PostgreSQL<br>via Prisma"]
+  Chain["Local Ethereum chain<br>(Hardhat)"]
+  Contracts["Grant & GrantFactory<br>Solidity contracts"]
+  Listener["Blockchain listener<br>(ethers.js)"]
 
-	U -->|HTTP JSON| API
-	API -->|Prisma queries| DB
-	API -->|JSON-RPC| Chain
-	Chain --> Contracts
+  U -->|HTTP JSON| API
+  API -->|Prisma queries| DB
+  API -->|JSON-RPC| Chain
+  Chain --> Contracts
 
-	Contracts -->|GrantCreated / Deposit / Refund events| Listener
-	Listener -->|Upsert projects & contributions| DB
-	API -->|Read projects, users, contributions| DB
+  Contracts -->|GrantCreated / Deposit / Refund events| Listener
+  Listener -->|Upsert projects & contributions| DB
+  API -->|Read projects, users, contributions| DB
 ```
 
 The backend starts the blockchain listener automatically when `NEXT_PUBLIC_CHAIN_RPC` and `NEXT_PUBLIC_FACTORY_ADDRESS` are configured, keeping the database in sync with on-chain events.
@@ -153,80 +153,80 @@ The REST API is served by the backend on `http://localhost:4000` by default (con
 ### Users
 
 - `GET /users/:walletAddress`
-	- Look up a user by EVM wallet address (case-insensitive).
-	- Response includes:
-		- `projects`: projects created by this wallet.
-		- `contributions`: contribution records with basic project info.
+  - Look up a user by EVM wallet address (case-insensitive).
+  - Response includes:
+    - `projects`: projects created by this wallet.
+    - `contributions`: contribution records with basic project info.
 
 ### Projects
 
 - `POST /projects`
-	- Create or update a project corresponding to a deployed `Grant` contract.
-	- Body (JSON):
-		- `grantContractAddress` (string, required) – address of the `Grant` contract.
-		- `title` (string, required)
-		- `description` (string, optional)
-		- `imageUrl` (string, optional)
-		- `goalAmount` (string | number, required) – goal in wei.
-		- `deadline` (string, required) – ISO timestamp.
-		- `creatorWallet` (string, required) – creator wallet address.
-	- Behavior:
-		- Validates EVM address format for `grantContractAddress` and `creatorWallet`.
-		- Upserts the `user` row for the creator.
-		- Upserts the `project` row keyed by `grantContractAddress`.
-		- Returns the created/updated project.
+  - Create or update a project corresponding to a deployed `Grant` contract.
+  - Body (JSON):
+    - `grantContractAddress` (string, required) – address of the `Grant` contract.
+    - `title` (string, required)
+    - `description` (string, optional)
+    - `imageUrl` (string, optional)
+    - `goalAmount` (string | number, required) – goal in wei.
+    - `deadline` (string, required) – ISO timestamp.
+    - `creatorWallet` (string, required) – creator wallet address.
+  - Behavior:
+    - Validates EVM address format for `grantContractAddress` and `creatorWallet`.
+    - Upserts the `user` row for the creator.
+    - Upserts the `project` row keyed by `grantContractAddress`.
+    - Returns the created/updated project.
 
 - `GET /projects`
-	- List projects with cursor-based pagination.
-	- Query params:
-		- `cursor` (string, optional) – project ID to start after.
-		- `limit` (number, optional, default 20, max 100).
-	- Response:
-		- `{ data: Project[], nextCursor: string | null }`, where each project includes `_count.contributions`.
+  - List projects with cursor-based pagination.
+  - Query params:
+    - `cursor` (string, optional) – project ID to start after.
+    - `limit` (number, optional, default 20, max 100).
+  - Response:
+    - `{ data: Project[], nextCursor: string | null }`, where each project includes `_count.contributions`.
 
 - `GET /projects/:id`
-	- Fetch a single project by ID.
-	- Includes:
-		- `contributions` ordered newest-first.
-		- `_count.contributions` for quick stats.
+  - Fetch a single project by ID.
+  - Includes:
+    - `contributions` ordered newest-first.
+    - `_count.contributions` for quick stats.
 
 ### Contributions
 
 - `POST /contributions`
-	- Record a contribution for a project. This is called both from the frontend and from the blockchain listener.
-	- Body (JSON):
-		- `projectId` (string, required) – foreign key to the project.
-		- `walletAddress` (string, required) – contributor wallet.
-		- `amount` (string | number, required) – contribution amount in wei.
-		- `txHash` (string, required) – transaction hash.
-	- Behavior:
-		- Validates address and tx hash formats.
-		- Idempotent: if a contribution with the same `txHash` already exists, returns it without creating a duplicate.
-		- Upserts the `user` row for the contributor.
-		- Recomputes `project.amountRaised` from all non-refunded contributions.
+  - Record a contribution for a project. This is called both from the frontend and from the blockchain listener.
+  - Body (JSON):
+    - `projectId` (string, required) – foreign key to the project.
+    - `walletAddress` (string, required) – contributor wallet.
+    - `amount` (string | number, required) – contribution amount in wei.
+    - `txHash` (string, required) – transaction hash.
+  - Behavior:
+    - Validates address and tx hash formats.
+    - Idempotent: if a contribution with the same `txHash` already exists, returns it without creating a duplicate.
+    - Upserts the `user` row for the contributor.
+    - Recomputes `project.amountRaised` from all non-refunded contributions.
 
 - `GET /contributions`
-	- List contributions, optionally filtered by project.
-	- Query params:
-		- `projectId` (string, optional).
-	- Response: array of contribution records ordered newest-first.
+  - List contributions, optionally filtered by project.
+  - Query params:
+    - `projectId` (string, optional).
+  - Response: array of contribution records ordered newest-first.
 
 ## Smart contracts
 
 Contracts live in `contracts/` and are written in Solidity 0.8.24.
 
 - `GrantFactory.sol`
-	- Deploys new `Grant` escrow contracts via `createGrant(goalAmount, deadline)`.
-	- Emits `GrantCreated` with a sequential `grantId` and the deployed contract address.
-	- Exposes `getGrants()` to enumerate deployed grant addresses.
+  - Deploys new `Grant` escrow contracts via `createGrant(goalAmount, deadline)`.
+  - Emits `GrantCreated` with a sequential `grantId` and the deployed contract address.
+  - Exposes `getGrants()` to enumerate deployed grant addresses.
 
 - `Grant.sol`
-	- Escrow contract for a single crowdfunding campaign.
-	- Constructor sets the `creator`, `goalAmount`, and `fundingDeadline`.
-	- `deposit()` – accept ETH from backers while the campaign is active, tracking contributions and total deposited; sets `goalReached` when the goal is met.
-	- `withdraw()` – allow the creator to withdraw funds once `goalReached` is true.
-	- `refund()` – allow backers to claim refunds after the deadline if the goal was not reached.
-	- Uses OpenZeppelin `ReentrancyGuard` and custom errors for safety and clear failure modes.
+  - Escrow contract for a single crowdfunding campaign.
+  - Constructor sets the `creator`, `goalAmount`, and `fundingDeadline`.
+  - `deposit()` – accept ETH from backers while the campaign is active, tracking contributions and total deposited; sets `goalReached` when the goal is met.
+  - `withdraw()` – allow the creator to withdraw funds once `goalReached` is true.
+  - `refund()` – allow backers to claim refunds after the deadline if the goal was not reached.
+  - Uses OpenZeppelin `ReentrancyGuard` and custom errors for safety and clear failure modes.
 
 ## Frontend
 

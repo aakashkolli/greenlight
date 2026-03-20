@@ -75,7 +75,7 @@ export const mockProjects: Project[] = [
     id: 'demo-privacy-shield',
     title: 'Open Source Privacy Shield',
     description:
-      'A free browser extension that blocks third-party trackers, fingerprinting scripts, and ad surveillance — built for journalists, activists, and anyone who values their privacy online.',
+      'A free browser extension that blocks third-party trackers, fingerprinting scripts, and ad surveillance - built for journalists, activists, and anyone who values their privacy online.',
     imageUrl: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&h=400&fit=crop&q=80',
     goalAmount: '2000000000000000000',
     amountRaised: '500000000000000000',
