@@ -13,8 +13,8 @@ export default function MobileMenu() {
     <Menu>
       <MenuButton as={IconButton} aria-label="Open menu" icon={<HamburgerIcon />} variant="ghost" size="md" />
       <MenuList>
-        <MenuItem as={Link} href="/activity">View Activity</MenuItem>
-        <MenuItem as={Link} href="/create">Start a Project</MenuItem>
+        <MenuItem as={Link} href="/activity">Activity</MenuItem>
+        <MenuItem as={Link} href="/create">Launch Project</MenuItem>
         {isConnected ? (
           <>
             <MenuItem as={Link} href="/profile">Profile</MenuItem>

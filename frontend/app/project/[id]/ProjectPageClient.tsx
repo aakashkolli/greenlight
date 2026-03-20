@@ -29,6 +29,7 @@ import {
   IconButton,
   Tooltip,
   useToast,
+  Badge,
 } from '@chakra-ui/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
@@ -42,6 +43,7 @@ import { Project, getProjectStatus } from '@/lib/types';
 import { useGrantContract } from '@/lib/useGrantContract';
 import { projectGradient } from '@/lib/projectImage';
 import { DEMO_MODE, getProjectById } from '@/lib/data';
+import { useDemoMode } from '@/lib/DemoModeContext';
 
 function CopyButton({ text }: { text: string }) {
   const toast = useToast();
@@ -71,6 +73,7 @@ export default function ProjectPageClient({ params }: { params: { id: string } }
   const [error, setError] = useState<string | null>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { address } = useAccount();
+  const { demoActive } = useDemoMode();
 
   const { isOpen: isConfirmOpen, onOpen: onConfirmOpen, onClose: onConfirmClose } = useDisclosure();
   const [pendingAction, setPendingAction] = useState<'withdraw' | 'refund' | null>(null);
@@ -129,6 +132,7 @@ export default function ProjectPageClient({ params }: { params: { id: string } }
   const endDate = project
     ? new Date(project.deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
     : '';
+  const canDeposit = status === 'active' && (DEMO_MODE ? demoActive : !!address);
 
   const handleConfirm = () => {
     onConfirmClose();
@@ -139,7 +143,7 @@ export default function ProjectPageClient({ params }: { params: { id: string } }
 
   if (loading) {
     return (
-      <Flex minH="100vh" align="center" justify="center">
+      <Flex minH="100vh" align="center" justify="center" bg="#09090B">
         <Spinner size="xl" color="brand.600" />
       </Flex>
     );
@@ -148,35 +152,35 @@ export default function ProjectPageClient({ params }: { params: { id: string } }
   if (error || !project) {
     return (
       <Container maxW="2xl" py={12}>
-        <Alert status="error" borderRadius="md">
+        <Alert status="error" borderRadius="md" bg="#18181B" borderColor="#27272A">
           <AlertIcon />
           {error || 'Project not found'}. Redirecting in 3 seconds...
         </Alert>
         <Link href="/">
-          <Button mt={4}>Back to Projects</Button>
+          <Button mt={4} bg="#00FF66" color="#09090B" borderRadius="0">Back to Projects</Button>
         </Link>
       </Container>
     );
   }
 
   return (
-    <Box minH="100vh" bg="#f4f8fb">
+    <Box minH="100vh" bg="#09090B">
       <Navbar maxW="5xl" />
 
       <Container maxW="5xl" py={10}>
         <VStack spacing={8} align="stretch">
           <HStack justify="space-between" align="start" flexWrap="wrap" gap={2}>
             <VStack align="start" spacing={1}>
-              <Heading size="xl">{project.title}</Heading>
-              <Text fontSize="sm" fontWeight="bold" color="black">{statusLabel}</Text>
-              <Text color="gray.500" fontSize="sm">
+              <Heading size="xl" color="#F4F4F5">{project.title}</Heading>
+              <Text fontSize="sm" fontWeight="bold" color="#A1A1AA">{statusLabel}</Text>
+              <Text color="#71717A" fontSize="sm">
                 by {project.creatorWallet.slice(0, 6)}...{project.creatorWallet.slice(-4)}
               </Text>
             </VStack>
 
             <HStack>
-              {status === 'active' && (
-                <Button bg="brand.600" color="white" _hover={{ bg: 'brand.700' }} onClick={onOpen} isDisabled={!address || DEMO_MODE}>
+              {status === 'active' && canDeposit && (
+                <Button bg="#00FF66" color="#09090B" _hover={{ bg: '#00FF66' }} onClick={onOpen} borderRadius="0">
                   Deposit ETH
                 </Button>
               )}
@@ -217,6 +221,7 @@ export default function ProjectPageClient({ params }: { params: { id: string } }
               w="full"
               h="72"
               objectFit="cover"
+              opacity={0.9}
               fallback={
                 <Flex
                   borderRadius="xl"
@@ -247,23 +252,81 @@ export default function ProjectPageClient({ params }: { params: { id: string } }
             </Flex>
           )}
 
-          <Box bg="white" p={6} borderRadius="lg" borderWidth="1px">
+          <Box bg="#111113" p={6} borderRadius="12px" border="1px solid #27272A">
             <ProgressBar amountRaised={project.amountRaised} goalAmount={project.goalAmount} />
-            <HStack justify="space-between" mt={4} color="black" fontSize="sm" fontWeight="semibold">
+            <HStack justify="space-between" mt={4} color="#D4D4D8" fontSize="sm" fontWeight="semibold">
               <Text>Ends {endDate}</Text>
               <Text>{project.contributions?.length ?? 0} backers</Text>
             </HStack>
           </Box>
 
-          <Box bg="white" p={6} borderRadius="lg" borderWidth="1px">
-            <Heading size="md" mb={4}>About this project</Heading>
-            <Text color="gray.700" whiteSpace="pre-wrap">{project.description}</Text>
+          <Box bg="#111113" p={6} borderRadius="12px" border="1px solid #27272A">
+            <Heading size="md" mb={4} color="#F4F4F5">About this project</Heading>
+            <Text color="#A1A1AA" whiteSpace="pre-wrap">{project.description}</Text>
           </Box>
 
-          <Box bg="white" p={6} borderRadius="lg" borderWidth="1px">
-            <Heading size="sm" mb={2}>Smart Contract</Heading>
+          {project.milestones && project.milestones.length > 0 && (
+            <Box bg="#111113" p={6} borderRadius="12px" border="1px solid #27272A">
+              <Heading size="md" mb={4} color="#F4F4F5">Milestones</Heading>
+              <VStack align="stretch" spacing={4}>
+                {project.milestones.map((milestone, index) => (
+                  <HStack
+                    key={`${milestone.title}-${index}`}
+                    align="start"
+                    spacing={4}
+                    p={4}
+                    border="1px solid"
+                    borderColor={milestone.completed ? '#00FF6640' : '#27272A'}
+                    borderRadius="10px"
+                    bg={milestone.completed ? '#00FF660D' : '#18181B'}
+                  >
+                    <Flex
+                      w="28px"
+                      h="28px"
+                      align="center"
+                      justify="center"
+                      borderRadius="full"
+                      bg={milestone.completed ? '#00FF662A' : '#27272A'}
+                      color={milestone.completed ? '#00FF66' : '#A1A1AA'}
+                      fontWeight="700"
+                      fontSize="xs"
+                      flexShrink={0}
+                    >
+                      {index + 1}
+                    </Flex>
+                    <VStack align="start" spacing={1} flex={1}>
+                      <HStack justify="space-between" w="full" flexWrap="wrap">
+                        <Text color="#F4F4F5" fontWeight="600">{milestone.title}</Text>
+                        <HStack spacing={2}>
+                          <Badge bg="#18181B" color="#A1A1AA" border="1px solid #27272A" borderRadius="4px">
+                            {milestone.tranchePercent}% tranche
+                          </Badge>
+                          {milestone.completed ? (
+                            <Badge bg="#00FF661A" color="#00FF66" border="1px solid #00FF6640" borderRadius="4px">
+                              Completed
+                            </Badge>
+                          ) : (
+                            <Badge bg="#18181B" color="#A1A1AA" border="1px solid #27272A" borderRadius="4px">
+                              Pending
+                            </Badge>
+                          )}
+                        </HStack>
+                      </HStack>
+                      <Text color="#A1A1AA" fontSize="sm">{milestone.description}</Text>
+                      <Text color="#71717A" fontSize="xs">
+                        Target: {new Date(milestone.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </Text>
+                    </VStack>
+                  </HStack>
+                ))}
+              </VStack>
+            </Box>
+          )}
+
+          <Box bg="#111113" p={6} borderRadius="12px" border="1px solid #27272A">
+            <Heading size="sm" mb={2} color="#F4F4F5">Smart Contract</Heading>
             <HStack>
-              <Text fontSize="xs" fontFamily="mono" color="gray.500">
+              <Text fontSize="xs" color="#71717A">
                 {project.grantContractAddress}
               </Text>
               <CopyButton text={project.grantContractAddress} />
@@ -271,32 +334,32 @@ export default function ProjectPageClient({ params }: { params: { id: string } }
           </Box>
 
           {project.contributions && project.contributions.length > 0 && (
-            <Box bg="white" borderRadius="lg" borderWidth="1px" overflow="hidden">
-              <Box p={4} borderBottomWidth="1px">
-                <Heading size="md">Contributions</Heading>
+            <Box bg="#111113" borderRadius="12px" border="1px solid #27272A" overflow="hidden">
+              <Box p={4} borderBottomWidth="1px" borderColor="#27272A">
+                <Heading size="md" color="#F4F4F5">Contributions</Heading>
               </Box>
               <Table size="sm">
                 <Thead>
                   <Tr>
-                    <Th>Backer</Th>
-                    <Th isNumeric>Amount</Th>
-                    <Th>Status</Th>
-                    <Th>Date</Th>
+                    <Th color="#71717A">Backer</Th>
+                    <Th isNumeric color="#71717A">Amount</Th>
+                    <Th color="#71717A">Status</Th>
+                    <Th color="#71717A">Date</Th>
                   </Tr>
                 </Thead>
                 <Tbody>
                   {project.contributions.map((c) => (
                     <Tr key={c.id} opacity={c.refunded ? 0.5 : 1}>
-                      <Td fontFamily="mono" fontSize="xs">
+                      <Td fontSize="xs" color="#D4D4D8">
                         {c.walletAddress.slice(0, 6)}...{c.walletAddress.slice(-4)}
                       </Td>
-                      <Td isNumeric>{parseFloat(formatEther(BigInt(c.amount))).toFixed(4)} ETH</Td>
+                      <Td isNumeric color="#D4D4D8">{parseFloat(formatEther(BigInt(c.amount))).toFixed(4)} ETH</Td>
                       <Td>
-                        <Text fontSize="xs" fontWeight="bold" color={c.refunded ? 'black' : 'gray.400'}>
+                        <Text fontSize="xs" fontWeight="bold" color={c.refunded ? '#F87171' : '#71717A'}>
                           {c.refunded ? 'Refunded' : '-'}
                         </Text>
                       </Td>
-                      <Td>{new Date(c.createdAt).toLocaleDateString()}</Td>
+                      <Td color="#A1A1AA">{new Date(c.createdAt).toLocaleDateString()}</Td>
                     </Tr>
                   ))}
                 </Tbody>

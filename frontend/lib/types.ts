@@ -7,6 +7,14 @@ export interface Contribution {
   createdAt: string;
 }
 
+export interface Milestone {
+  title: string;
+  description: string;
+  dueDate: string;
+  tranchePercent: number;
+  completed?: boolean;
+}
+
 export interface Project {
   id: string;
   title: string;
@@ -17,6 +25,7 @@ export interface Project {
   deadline: string;
   creatorWallet: string;
   grantContractAddress: string;
+  milestones?: Milestone[];
   contributions?: Contribution[];
   _count?: { contributions: number };
 }

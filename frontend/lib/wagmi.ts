@@ -1,4 +1,4 @@
-import { createConfig } from '@privy-io/wagmi';
+import { createConfig } from 'wagmi';
 import { http } from 'wagmi';
 import { hardhat, sepolia } from 'wagmi/chains';
 

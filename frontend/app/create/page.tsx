@@ -23,9 +23,11 @@ import { parseEther, decodeEventLog } from 'viem';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { Navbar } from '@/components/Navbar';
 import { GRANT_FACTORY_ABI, FACTORY_ADDRESS, API_BASE } from '@/lib/contracts';
-import { DEMO_MODE } from '@/lib/data';
+import { useDemoMode } from '@/lib/DemoModeContext';
 
 const IMAGE_URL_RE = /^https?:\/\/.+/;
+// Valid hex address used as creator wallet for demo-launched projects
+const DEMO_CREATOR_ADDR = '0xde4d0000000000000000000000000000deadbeef';
 
 interface FormState {
   title: string;
@@ -56,6 +58,7 @@ export default function CreatePage() {
   const router = useRouter();
   const toast = useToast();
   const { address, isConnected } = useAccount();
+  const { isDemoMode, demoActive } = useDemoMode();
 
   const [form, setForm] = useState<FormState>({
     title: '',
@@ -78,10 +81,10 @@ export default function CreatePage() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => setForm((f) => ({ ...f, [name]: e.target.value }));
 
+  // ── Production: save after contract deploy ─────────────────────────────────
   const handleSaveToBackend = useCallback(async () => {
     if (!receipt || !address) return;
 
-    // Decode GrantCreated log with ABI — safe against topic ordering changes
     let grantAddress = '';
     for (const log of receipt.logs) {
       if (log.address.toLowerCase() === FACTORY_ADDRESS.toLowerCase()) {
@@ -123,7 +126,7 @@ export default function CreatePage() {
       if (!res.ok) throw new Error(await res.text());
       const project = await res.json();
       setStep('done');
-      toast({ title: 'Project created!', status: 'success', duration: 3000 });
+      toast({ title: 'Project launched!', status: 'success', duration: 3000 });
       router.push(`/project/${project.id}`);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
@@ -152,8 +155,49 @@ export default function CreatePage() {
     }
   }, [writeError, toast]);
 
+  // ── Demo: simulate deploy + save directly ──────────────────────────────────
+  const handleDemoSubmit = useCallback(async () => {
+    if (!isValid || step !== 'idle') return;
+    hasSaved.current = false;
+    setStep('deploying');
+
+    // Simulate tx confirmation latency
+    await new Promise<void>((r) => setTimeout(r, 1500));
+
+    setStep('saving');
+    try {
+      // Unique valid hex address derived from timestamp
+      const fakeContractAddr = `0x${Date.now().toString(16).padStart(40, '0')}`;
+      const deadlineTs = Date.now() + parseInt(form.deadlineDays) * 24 * 60 * 60 * 1000;
+      const res = await fetch(`${API_BASE}/projects`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          grantContractAddress: fakeContractAddr,
+          title: form.title,
+          description: form.description,
+          imageUrl: form.imageUrl || null,
+          goalAmount: parseEther(form.goalEth).toString(),
+          deadline: new Date(deadlineTs).toISOString(),
+          creatorWallet: DEMO_CREATOR_ADDR,
+        }),
+      });
+
+      if (!res.ok) throw new Error(await res.text());
+      const project = await res.json();
+      setStep('done');
+      toast({ title: 'Project launched!', status: 'success', duration: 3000 });
+      router.push(`/project/${project.id}`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      toast({ title: 'Failed to create project', description: message, status: 'error' });
+      setStep('idle');
+    }
+  }, [isValid, step, form, toast, router]);
+
   const handleSubmit = () => {
-    if (DEMO_MODE) {
+    if (isDemoMode) {
+      handleDemoSubmit();
       return;
     }
     if (!isConnected || !address || !isValid) return;
@@ -167,40 +211,75 @@ export default function CreatePage() {
     });
   };
 
+  const isSubmitDisabled = isDemoMode
+    ? !demoActive || !isValid || step !== 'idle'
+    : !isConnected || !isValid || step !== 'idle';
+
   const descLen = form.description.trim().length;
 
   return (
-    <Box minH="100vh" bg="#f4f8fb">
+    <Box minH="100vh" bg="#09090B">
       <Navbar maxW="3xl" />
 
-      <Container maxW="3xl" py={10}>
-        <Heading mb={2}>Create a Project</Heading>
-        <Text color="gray.500" mb={8} fontSize="sm">
-          Deploy an escrow contract and publish your campaign.
-        </Text>
+      <Container maxW="3xl" py={12}>
+        <Box mb={8}>
+          <Text fontSize="xs" color="#52525B" fontWeight="600" letterSpacing="wide" mb={3}>
+            Protocol
+          </Text>
+          <Heading
+            fontFamily="var(--font-space-grotesk), sans-serif"
+            fontWeight="700"
+            fontSize={{ base: '2xl', md: '3xl' }}
+            color="#F4F4F5"
+            mb={2}
+          >
+            Launch a Project
+          </Heading>
+          <Text color="#71717A" fontSize="sm">
+            Deploy an escrow contract and publish your campaign.
+          </Text>
+        </Box>
 
-        {!isConnected && (
-          <Alert status="warning" mb={6} borderRadius="md">
-            <AlertIcon />
-            Connect your wallet to create a project.
+        {isDemoMode && !demoActive && (
+          <Alert status="info" mb={6} borderRadius="0" bg="#18181B" border="1px solid #1F3050">
+            <AlertIcon color="#00FF66" />
+            <Text fontSize="sm" color="#A1A1AA">
+              Click <strong style={{ color: '#F4F4F5' }}>Run Demo</strong> in the top-right to activate the sandbox and create a simulated project.
+            </Text>
           </Alert>
         )}
 
-        <Box bg="white" p={8} borderRadius="xl" borderWidth="1px" shadow="sm">
+        {isDemoMode && demoActive && (
+          <Alert status="info" mb={6} borderRadius="0" bg="#0D1A0D" border="1px solid #00FF6630">
+            <AlertIcon color="#00FF66" />
+            <Text fontSize="sm" color="#A1A1AA">
+              Sandbox mode — your project will be created with a simulated contract address. No real ETH is used.
+            </Text>
+          </Alert>
+        )}
+
+        {!isDemoMode && !isConnected && (
+          <Alert status="warning" mb={6} borderRadius="0" bg="#18181B" border="1px solid #3F2A00">
+            <AlertIcon />
+            <Text fontSize="sm" color="#A1A1AA">Connect your wallet to launch a project.</Text>
+          </Alert>
+        )}
+
+        <Box bg="#111113" p={8} borderRadius="12px" border="1px solid #27272A">
           <VStack spacing={5}>
             <FormControl isRequired isInvalid={!!touched.title && !!fieldErrors.title}>
-              <FormLabel>Title</FormLabel>
+              <FormLabel color="#A1A1AA" fontSize="sm" fontWeight="500">Title</FormLabel>
               <Input
                 placeholder="Give your project a compelling title"
                 value={form.title}
                 onChange={change('title')}
                 onBlur={blur('title')}
               />
-              <FormErrorMessage>{fieldErrors.title}</FormErrorMessage>
+              <FormErrorMessage fontSize="xs">{fieldErrors.title}</FormErrorMessage>
             </FormControl>
 
             <FormControl isRequired isInvalid={!!touched.description && !!fieldErrors.description}>
-              <FormLabel>Description</FormLabel>
+              <FormLabel color="#A1A1AA" fontSize="sm" fontWeight="500">Description</FormLabel>
               <Textarea
                 placeholder="Describe your project, its goals, and how funds will be used..."
                 rows={6}
@@ -208,29 +287,39 @@ export default function CreatePage() {
                 onChange={change('description')}
                 onBlur={blur('description')}
                 resize="vertical"
+                bg="#18181B"
+                borderColor="#27272A"
+                color="#F4F4F5"
+                _hover={{ borderColor: '#3F3F46' }}
+                _focus={{ borderColor: '#00FF66', boxShadow: '0 0 0 1px #00FF66' }}
+                _placeholder={{ color: '#52525B' }}
               />
               <FormHelperText
-                color={descLen > 2000 ? 'red.500' : descLen >= 20 ? 'green.500' : 'gray.400'}
+                fontSize="xs"
+                color={descLen > 2000 ? '#F87171' : descLen >= 20 ? '#00FF66' : '#52525B'}
               >
                 {descLen}/2000 characters
               </FormHelperText>
-              <FormErrorMessage>{fieldErrors.description}</FormErrorMessage>
+              <FormErrorMessage fontSize="xs">{fieldErrors.description}</FormErrorMessage>
             </FormControl>
 
             <FormControl isInvalid={!!touched.imageUrl && !!fieldErrors.imageUrl}>
-              <FormLabel>Cover Image URL <Text as="span" color="gray.400" fontWeight="normal">(optional)</Text></FormLabel>
+              <FormLabel color="#A1A1AA" fontSize="sm" fontWeight="500">
+                Cover Image URL{' '}
+                <Text as="span" color="#52525B" fontWeight="normal">(optional)</Text>
+              </FormLabel>
               <Input
                 placeholder="https://example.com/image.jpg"
                 value={form.imageUrl}
                 onChange={change('imageUrl')}
                 onBlur={blur('imageUrl')}
               />
-              <FormHelperText>Leave blank to use an auto-generated gradient.</FormHelperText>
-              <FormErrorMessage>{fieldErrors.imageUrl}</FormErrorMessage>
+              <FormHelperText fontSize="xs" color="#52525B">Leave blank to use an auto-generated gradient.</FormHelperText>
+              <FormErrorMessage fontSize="xs">{fieldErrors.imageUrl}</FormErrorMessage>
             </FormControl>
 
             <FormControl isRequired isInvalid={!!touched.goalEth && !!fieldErrors.goalEth}>
-              <FormLabel>Funding Goal (ETH)</FormLabel>
+              <FormLabel color="#A1A1AA" fontSize="sm" fontWeight="500">Funding Goal (ETH)</FormLabel>
               <Input
                 type="number"
                 placeholder="e.g. 1.0"
@@ -240,11 +329,11 @@ export default function CreatePage() {
                 onChange={change('goalEth')}
                 onBlur={blur('goalEth')}
               />
-              <FormErrorMessage>{fieldErrors.goalEth}</FormErrorMessage>
+              <FormErrorMessage fontSize="xs">{fieldErrors.goalEth}</FormErrorMessage>
             </FormControl>
 
             <FormControl isRequired isInvalid={!!touched.deadlineDays && !!fieldErrors.deadlineDays}>
-              <FormLabel>Funding Duration (days)</FormLabel>
+              <FormLabel color="#A1A1AA" fontSize="sm" fontWeight="500">Funding Duration (days)</FormLabel>
               <Input
                 type="number"
                 placeholder="e.g. 30"
@@ -254,27 +343,32 @@ export default function CreatePage() {
                 onChange={change('deadlineDays')}
                 onBlur={blur('deadlineDays')}
               />
-              <FormHelperText>Backers can claim refunds if the goal is not met by this deadline.</FormHelperText>
-              <FormErrorMessage>{fieldErrors.deadlineDays}</FormErrorMessage>
+              <FormHelperText fontSize="xs" color="#52525B">
+                Backers can claim refunds if the goal is not met by this deadline.
+              </FormHelperText>
+              <FormErrorMessage fontSize="xs">{fieldErrors.deadlineDays}</FormErrorMessage>
             </FormControl>
 
             <Button
-              bg="brand.600"
-              color="white"
-              _hover={{ bg: 'brand.700' }}
+              bg="#00FF66"
+              color="#09090B"
+              _hover={{ boxShadow: '0 0 24px rgba(0,255,102,0.35)', bg: '#00FF66' }}
               w="full"
               size="lg"
-              borderRadius="lg"
+              borderRadius="0"
               onClick={handleSubmit}
               isLoading={isPending || step === 'deploying' || step === 'saving'}
               loadingText={
-                step === 'saving' ? 'Saving to database...' :
-                step === 'deploying' ? 'Deploying contract...' : 'Confirm in wallet...'
+                step === 'saving' ? 'Saving...' :
+                step === 'deploying' ? (isDemoMode ? 'Simulating deploy...' : 'Deploying contract...') :
+                'Confirm in wallet...'
               }
-              isDisabled={!isConnected || !isValid || DEMO_MODE}
+              isDisabled={isSubmitDisabled}
               mt={2}
+              fontWeight="700"
+              transition="all 0.15s ease"
             >
-              Deploy & Create Project
+              Launch Project
             </Button>
           </VStack>
         </Box>

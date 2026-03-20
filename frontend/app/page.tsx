@@ -1,4 +1,7 @@
-'use client';
+// Server Component — no 'use client'.
+// All interactive state (search, filter, wallet) lives in leaf Client Components.
+// Chakra UI v2 components render as static HTML on the server and are hydrated
+// with styles by ChakraProvider (a Client Component in providers.tsx).
 
 import {
   Box,
@@ -6,254 +9,251 @@ import {
   Heading,
   Text,
   Button,
-  ButtonGroup,
   SimpleGrid,
   HStack,
-  Spinner,
-  Alert,
-  AlertIcon,
   Flex,
-  Input,
-  InputGroup,
-  InputLeftElement,
-  Stat,
-  StatLabel,
-  StatNumber,
-  Wrap,
-  WrapItem,
+  Grid,
+  GridItem,
+  Divider,
 } from '@chakra-ui/react';
-import { useEffect, useState, useMemo, useCallback } from 'react';
 import Link from 'next/link';
-import { ProjectCard } from '@/components/ProjectCard';
 import { Navbar } from '@/components/Navbar';
-import { Project, ProjectStatus, getProjectStatus } from '@/lib/types';
-import { useDebounce } from '@/lib/useDebounce';
-import { formatEther } from 'viem';
-import { listProjects } from '@/lib/data';
+import { VaultTerminal } from '@/components/VaultTerminal';
+import { ProjectsSection } from '@/components/ProjectsSection';
 
-type Filter = 'all' | ProjectStatus;
-
-function SearchIcon() {
+function ProtocolStep({
+  step,
+  title,
+  description,
+  code,
+}: {
+  step: string;
+  title: string;
+  description: string;
+  code: string;
+}) {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-    </svg>
+    <Box
+      bg="#111113"
+      border="1px solid #27272A"
+      borderRadius="12px"
+      p={6}
+      _hover={{ borderColor: '#3F3F46' }}
+      transition="border-color 0.2s ease"
+    >
+      <Text fontSize="xs" color="#52525B" fontWeight="600" letterSpacing="wide" mb={3}>
+        {step}
+      </Text>
+      <Heading as="h3" size="sm" color="#F4F4F5" mb={2} fontFamily="var(--font-space-grotesk), sans-serif">
+        {title}
+      </Heading>
+      <Text color="#71717A" fontSize="sm" mb={4} lineHeight="1.7">
+        {description}
+      </Text>
+      <Box
+        as="pre"
+        fontFamily="var(--font-jetbrains-mono), monospace"
+        fontSize="11px"
+        color="#D4D4D4"
+        bg="#0D0D0F"
+        border="1px solid #1F1F23"
+        borderRadius="6px"
+        px={3}
+        py={2}
+        whiteSpace="pre-wrap"
+        wordBreak="break-word"
+        overflowX="auto"
+      >
+        <code>{code}</code>
+      </Box>
+    </Box>
   );
 }
 
 export default function HomePage() {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [nextCursor, setNextCursor] = useState<string | null>(null);
-  const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<Filter>('all');
-  const debouncedSearch = useDebounce(search, 300);
-
-  const fetchProjects = useCallback((cursor?: string) => {
-    return listProjects(cursor)
-      .then((res) => {
-        const incoming: Project[] = Array.isArray(res.data) ? res.data : [];
-        setProjects((prev) => (cursor ? [...prev, ...incoming] : incoming));
-        setNextCursor(res.nextCursor ?? null);
-      });
-  }, []);
-
-  useEffect(() => {
-    fetchProjects()
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, []);
-
-  const handleLoadMore = () => {
-    if (!nextCursor) return;
-    setLoadingMore(true);
-    fetchProjects(nextCursor)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoadingMore(false));
-  };
-
-  const filteredProjects = useMemo(() => {
-    return projects.filter((p) => {
-      if (filter !== 'all' && getProjectStatus(p) !== filter) return false;
-      if (debouncedSearch.trim()) {
-        const q = debouncedSearch.toLowerCase();
-        return p.title.toLowerCase().includes(q) || p.description.toLowerCase().includes(q);
-      }
-      return true;
-    });
-  }, [projects, debouncedSearch, filter]);
-
-  // Aggregate stats
-  const stats = useMemo(() => {
-    const totalRaised = projects.reduce((s, p) => s + BigInt(p.amountRaised || '0'), 0n);
-    const active = projects.filter((p) => getProjectStatus(p) === 'active').length;
-    const funded = projects.filter((p) => getProjectStatus(p) === 'funded').length;
-    return { totalRaised, active, funded, total: projects.length };
-  }, [projects]);
-
   return (
-    <Box minH="100vh" bg="#f4f8fb">
+    <Box minH="100vh" bg="#09090B">
       <Navbar />
 
+      {/* ── Hero ── */}
       <Box
         position="relative"
-        bgGradient="linear(135deg, #0f172a 0%, #0b5f76 45%, #06b6d4 100%)"
-        py={{ base: 14, md: 20 }}
-        px={6}
         overflow="hidden"
+        pt={{ base: 16, md: 24 }}
+        pb={{ base: 16, md: 20 }}
+        px={6}
+        _before={{
+          content: '""',
+          position: 'absolute',
+          top: '-200px',
+          left: '-200px',
+          width: '700px',
+          height: '700px',
+          background: 'radial-gradient(circle, rgba(0,255,102,0.05) 0%, transparent 70%)',
+          pointerEvents: 'none',
+        }}
       >
-        <Container maxW="4xl" textAlign="center" position="relative">
-          <Text
-            color="#bae6fd"
-            fontSize="sm"
-            fontWeight="semibold"
-            letterSpacing="widest"
-            textTransform="uppercase"
-            mb={3}
+        <Container maxW="6xl">
+          <Grid
+            templateColumns={{ base: '1fr', lg: '1fr 1fr' }}
+            gap={{ base: 12, lg: 16 }}
+            alignItems="center"
           >
-            Escrow-first crowdfunding
-          </Text>
-          <Heading color="white" size="2xl" mb={4} lineHeight="1.2" fontWeight="normal">
-            Fund What Matters. Refunds If It Fails.
-          </Heading>
-          <Text color="#e0f2fe" fontSize={{ base: 'md', md: 'lg' }} mb={8} maxW="2xl" mx="auto" lineHeight="1.7">
-            Every contribution stays in escrow until the goal is hit. If a campaign closes below goal, funds auto-return to your wallet. No forms. No fees. No waiting.
-          </Text>
-          <HStack justify="center" spacing={4} flexWrap="wrap" mb={4}>
-            <Link href="/create">
-              <Button size="lg" bg="white" color="brand.700" _hover={{ bg: '#e8f7ff' }} shadow="md">
-                Launch Your Project
-              </Button>
-            </Link>
-            <Link href="#projects">
-              <Button size="lg" variant="outline" color="white" borderColor="whiteAlpha.700" _hover={{ bg: 'whiteAlpha.250' }}>
-                Browse Projects
-              </Button>
-            </Link>
-          </HStack>
+            {/* Left: copy */}
+            <GridItem>
+              <Heading
+                as="h1"
+                fontFamily="var(--font-space-grotesk), sans-serif"
+                fontWeight="700"
+                fontSize={{ base: '3xl', md: '5xl' }}
+                lineHeight="1.1"
+                mb={5}
+                sx={{
+                  background: 'linear-gradient(135deg, #FFFFFF 0%, #A1A1AA 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
+                Fund Milestones.
+                <br />
+                Not Promises.
+              </Heading>
+
+              <Text
+                color="#A1A1AA"
+                fontSize={{ base: 'md', md: 'lg' }}
+                lineHeight="1.7"
+                maxW="xl"
+                mb={8}
+              >
+                An open-source, smart-contract powered crowdfunding protocol. Capital is locked in a
+                trustless vault and released in tranches upon milestone verification. Built with
+                Next.js, Solidity, and PostgreSQL.
+              </Text>
+
+              <HStack spacing={4} mb={8} flexWrap="wrap">
+                <Link href="#mechanics">
+                  <Button
+                    bg="#00FF66"
+                    color="#09090B"
+                    fontWeight="700"
+                    size="lg"
+                    px={7}
+                    borderRadius="0"
+                    _hover={{
+                      transform: 'scale(1.03)',
+                      boxShadow: '0 0 24px rgba(0,255,102,0.35)',
+                      bg: '#00FF66',
+                    }}
+                    transition="all 0.15s ease"
+                  >
+                    View Protocol Mechanics
+                  </Button>
+                </Link>
+                <Link href="#projects">
+                  <Button
+                    bg="transparent"
+                    color="#F4F4F5"
+                    size="lg"
+                    px={7}
+                    borderRadius="0"
+                    border="1px solid #27272A"
+                    _hover={{ borderColor: '#3F3F46', bg: 'rgba(255,255,255,0.04)' }}
+                    transition="all 0.15s ease"
+                  >
+                    Browse Vaults
+                  </Button>
+                </Link>
+              </HStack>
+
+              {/* Trust signals — plain text, no mono font */}
+              <HStack spacing={6} flexWrap="wrap">
+                {[{}, {}, {}].map((_, i) => (
+                  <HStack key={i} spacing={2} align="center">
+                    {i > 0 && (
+                      <Divider
+                        orientation="vertical"
+                        borderColor="#27272A"
+                        height="18px"
+                        alignSelf="center"
+                      />
+                    )}
+                    <Text fontSize="xs" color="#52525B" fontWeight="500">
+                      {/* intentionally left blank per design request */}
+                    </Text>
+                  </HStack>
+                ))}
+              </HStack>
+            </GridItem>
+
+            {/* Right: terminal visual */}
+            <GridItem display="flex" justifyContent={{ base: 'center', lg: 'flex-end' }}>
+              <VaultTerminal />
+            </GridItem>
+          </Grid>
         </Container>
       </Box>
 
-      {!loading && projects.length > 0 && (
-        <Box bg="#f8fcff" borderBottomWidth="1px" borderColor="blackAlpha.200">
-          <Container maxW="4xl">
-            <SimpleGrid columns={3} py={6}>
-              <Stat textAlign="center">
-                <StatNumber color="brand.700" fontSize="2xl">{stats.total}</StatNumber>
-                <StatLabel color="gray.500" fontSize="xs" textTransform="uppercase" letterSpacing="wide">Projects</StatLabel>
-              </Stat>
-              <Stat textAlign="center" borderX="1px" borderColor="gray.100">
-                <StatNumber color="brand.700" fontSize="2xl">
-                  {parseFloat(formatEther(stats.totalRaised)).toFixed(1)} ETH
-                </StatNumber>
-                <StatLabel color="gray.500" fontSize="xs" textTransform="uppercase" letterSpacing="wide">Total Raised</StatLabel>
-              </Stat>
-              <Stat textAlign="center">
-                <StatNumber color="brand.700" fontSize="2xl">{stats.active}</StatNumber>
-                <StatLabel color="gray.500" fontSize="xs" textTransform="uppercase" letterSpacing="wide">Active Now</StatLabel>
-              </Stat>
-            </SimpleGrid>
-          </Container>
-        </Box>
-      )}
-
-      <Container maxW="6xl" py={12} id="projects">
-        <Heading size="lg" mb={2}>
-          Explore Projects
-        </Heading>
-        <Text color="gray.500" mb={6} fontSize="sm">
-          Back ambitious ideas with transparent funding rails.
-        </Text>
-
-        <Wrap mb={8} spacing={4}>
-          <WrapItem>
-          <InputGroup maxW="300px">
-            <InputLeftElement pointerEvents="none" color="gray.400">
-              <SearchIcon />
-            </InputLeftElement>
-            <Input
-              placeholder="Search projects..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              bg="#fffdfa"
-              borderRadius="lg"
-            />
-          </InputGroup>
-          </WrapItem>
-          <WrapItem>
-          <ButtonGroup size="sm" isAttached>
-            {(['all', 'active', 'funded', 'expired'] as Filter[]).map((f) => (
-              <Button
-                key={f}
-                onClick={() => setFilter(f)}
-                colorScheme={filter === f ? 'cyan' : 'gray'}
-                variant={filter === f ? 'solid' : 'outline'}
-                borderRadius={f === 'all' ? 'lg 0 0 lg' : f === 'expired' ? '0 lg lg 0' : '0'}
-              >
-                {f === 'all' ? 'All' : f === 'active' ? 'Open' : f === 'funded' ? 'Successful' : 'Closed'}
-              </Button>
-            ))}
-          </ButtonGroup>
-          </WrapItem>
-        </Wrap>
-
-        {loading && (
-          <Flex justify="center" py={16}>
-            <Spinner size="xl" color="teal.500" thickness="3px" />
-          </Flex>
-        )}
-
-        {error && (
-          <Alert status="error" borderRadius="lg" mb={6}>
-            <AlertIcon />
-            Failed to load projects: {error}.
-          </Alert>
-        )}
-
-        {!loading && !error && filteredProjects.length === 0 && (
-          <Box textAlign="center" py={16}>
-            <Text fontSize="4xl" mb={4}>🌱</Text>
-            <Text color="gray.500" fontSize="lg">
-              {projects.length === 0 ? 'No projects yet.' : 'No projects match your search.'}
-            </Text>
-            {projects.length === 0 && (
-              <Link href="/create">
-                <Button mt={4} bg="brand.600" color="white" _hover={{ bg: 'brand.700' }}>Start the first project</Button>
-              </Link>
-            )}
-          </Box>
-        )}
-
-        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-          {filteredProjects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
-          ))}
-        </SimpleGrid>
-
-        {nextCursor && (
-          <Flex justify="center" mt={10}>
-            <Button
-              onClick={handleLoadMore}
-              isLoading={loadingMore}
-              loadingText="Loading..."
-              variant="outline"
-              colorScheme="cyan"
-              borderRadius="lg"
+      {/* ── Protocol Mechanics ── */}
+      <Box id="mechanics" py={{ base: 16, md: 24 }} px={6} borderBottom="1px solid #1F1F23">
+        <Container maxW="6xl">
+          <Box mb={12}>
+            {/* Heading label removed per request (was: "How it works") */}
+            <Heading
+              fontFamily="var(--font-space-grotesk), sans-serif"
+              fontWeight="700"
+              fontSize={{ base: '2xl', md: '3xl' }}
+              color="#F4F4F5"
+              mb={3}
             >
-              Load more projects
-            </Button>
-          </Flex>
-        )}
-      </Container>
+              Protocol Mechanics & Data Flow
+            </Heading>
+            <Text color="#71717A" fontSize="md" maxW="lg">
+              A trustless, three-phase lifecycle governs every capital commitment on GreenLight.
+            </Text>
+          </Box>
 
-      <Box bg="#f8fcff" borderTopWidth="1px" borderColor="blackAlpha.200" py={8} mt={8}>
+          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={5}>
+            <ProtocolStep
+              step=""
+              title="Backers Deposit into the Vault"
+              description="Backers transfer ETH or ERC-20 tokens directly into the Grant.sol escrow contract. Funds are held autonomously — no intermediaries, no multisig."
+              code="Grant.deposit(milestoneId) -> vault[msg.sender] += msg.value"
+            />
+            <ProtocolStep
+              step=""
+              title="Event-Driven Off-Chain Sync"
+              description="A Node.js service subscribes to contract events via WebSocket. Each Deposit and Refund event is indexed to PostgreSQL, tracking progress against predefined milestones."
+              code="WS -> blockchainListener.ts -> Prisma -> PostgreSQL"
+            />
+            <ProtocolStep
+              step=""
+              title="Release Tranche or Auto-Revert"
+              description="Upon milestone approval, the verified tranche is unlocked via releaseTranche(). Upon failure, refundBackers() auto-routes remaining funds back to original backer wallets."
+              code="Grant.releaseTranche(idx) | Grant.refundBackers() -> vault[backer] = 0"
+            />
+          </SimpleGrid>
+        </Container>
+      </Box>
+
+      {/* ── Projects (Client Component) ── */}
+      <ProjectsSection />
+
+      {/* ── Footer ── */}
+      <Box borderTop="1px solid #1F1F23" py={8} bg="#0D0D0F">
         <Container maxW="6xl">
           <Flex justify="space-between" align="center" flexWrap="wrap" gap={4}>
-            <Text fontSize="sm" fontWeight="bold" color="brand.700">Greenlight</Text>
-            <Text fontSize="xs" color="gray.400">
-              Funds held in smart contract escrow. Built on Ethereum.
+            <Text
+              fontFamily="var(--font-space-grotesk), sans-serif"
+              fontSize="sm"
+              fontWeight="700"
+              color="#F4F4F5"
+            >
+              GreenLight
+            </Text>
+            <Text fontSize="xs" color="#52525B" fontWeight="500">
+              Funds held in smart contract escrow · Built on Ethereum · Open Source
             </Text>
           </Flex>
         </Container>

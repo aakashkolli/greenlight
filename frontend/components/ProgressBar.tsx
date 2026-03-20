@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Progress, Text, HStack } from '@chakra-ui/react';
+import { Box, Text, HStack } from '@chakra-ui/react';
 import { formatEther } from 'viem';
 
 interface ProgressBarProps {
@@ -25,23 +25,40 @@ export function ProgressBar({ amountRaised, goalAmount, showDetails = true }: Pr
 
   return (
     <Box>
-      <HStack justify="space-between" mb={1} align="baseline">
-        <Text fontSize="sm" fontWeight="bold" color={isFunded ? 'green.600' : 'brand.700'}>
+      <HStack justify="space-between" mb={2} align="baseline">
+        <Text
+          fontSize="sm"
+          fontWeight="700"
+          color={isFunded ? '#00FF66' : '#F4F4F5'}
+        >
           {fmtEth(raised)} ETH
         </Text>
-        <Text fontSize="xs" color="gray.400" fontWeight="medium">
+        <Text
+          fontSize="xs"
+          color="#52525B"
+        >
           {cappedPct}%
         </Text>
       </HStack>
-      <Progress
-        value={cappedPct}
-        colorScheme={isFunded ? 'green' : 'cyan'}
-        borderRadius="full"
-        size="sm"
-        bg="gray.100"
-      />
+
+      {/* Custom progress bar — avoids Chakra Progress dark-mode quirks */}
+      <Box bg="#1F1F23" borderRadius="full" h="4px" overflow="hidden">
+        <Box
+          h="full"
+          w={`${cappedPct}%`}
+          bg={isFunded ? '#00FF66' : '#00CC52'}
+          borderRadius="full"
+          transition="width 0.3s ease"
+          boxShadow={isFunded ? '0 0 8px rgba(0,255,102,0.4)' : undefined}
+        />
+      </Box>
+
       {showDetails && (
-        <Text fontSize="sm" color="black" fontWeight="semibold" mt={1}>
+        <Text
+          fontSize="xs"
+          color="#52525B"
+          mt={1.5}
+        >
           Goal: {fmtEth(goal)} ETH
         </Text>
       )}

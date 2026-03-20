@@ -24,6 +24,7 @@ import { parseEther } from 'viem';
 import { useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi';
 import { GRANT_ABI, API_BASE } from '@/lib/contracts';
 import { DEMO_MODE } from '@/lib/data';
+import { useDemoMode } from '@/lib/DemoModeContext';
 
 interface DepositModalProps {
   isOpen: boolean;
@@ -46,6 +47,7 @@ export function DepositModal({
   const [touched, setTouched] = useState(false);
   const toast = useToast();
   const { address } = useAccount();
+  const { demoActive, simulateDeposit } = useDemoMode();
 
   const { writeContract, data: txHash, isPending, error: writeError, reset } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
@@ -103,8 +105,31 @@ export function DepositModal({
   }, [writeError, toast]);
 
   const handleDeposit = () => {
-    if (DEMO_MODE) return;
     if (!isValidAmount) return;
+
+    if (DEMO_MODE) {
+      if (!demoActive) {
+        toast({
+          title: 'Demo session not active',
+          description: 'Launch the demo session first, then simulate a deposit.',
+          status: 'warning',
+          duration: 3000,
+        });
+        return;
+      }
+
+      simulateDeposit(projectId, parseEther(ethAmount))
+        .then(() => {
+          toast({ title: 'Simulated deposit confirmed', status: 'success', duration: 3000 });
+          onSuccess?.();
+          handleClose();
+        })
+        .catch(() => {
+          toast({ title: 'Simulation failed', status: 'error', duration: 4000 });
+        });
+      return;
+    }
+
     hasConfirmed.current = false;
     reset();
     writeContract({
@@ -167,9 +192,9 @@ export function DepositModal({
             onClick={handleDeposit}
             isLoading={isPending || isConfirming}
             loadingText={isConfirming ? 'Confirming...' : 'Sending...'}
-            isDisabled={!address || !isValidAmount || DEMO_MODE}
+            isDisabled={(!DEMO_MODE && !address) || !isValidAmount}
           >
-            Deposit
+            {DEMO_MODE ? 'Simulate Deposit' : 'Deposit'}
           </Button>
         </ModalFooter>
       </ModalContent>
