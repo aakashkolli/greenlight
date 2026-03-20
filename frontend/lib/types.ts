@@ -11,7 +11,7 @@ export interface Milestone {
   title: string;
   description: string;
   dueDate: string;
-  tranchePercent: number;
+  percent: number;
   completed?: boolean;
 }
 

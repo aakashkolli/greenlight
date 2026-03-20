@@ -3,7 +3,7 @@ import { Project } from './types';
 const now = Date.now();
 const day = 24 * 60 * 60 * 1000;
 
-function milestones(baseDaysFromNow: number, labels: Array<{ title: string; description: string; tranchePercent: number }>) {
+function milestones(baseDaysFromNow: number, labels: Array<{ title: string; description: string; percent: number }>) {
   return labels.map((label, index) => ({
     ...label,
     dueDate: new Date(now + (baseDaysFromNow + index * 7) * day).toISOString(),
@@ -14,20 +14,20 @@ function milestones(baseDaysFromNow: number, labels: Array<{ title: string; desc
 export const mockProjects: Project[] = [
   {
     id: 'demo-solar-school',
-    title: 'Solar Classrooms for Rural Schools',
+    title: 'Community Makerspaces for Skill-Building',
     description:
-      'Install solar micro-grids for five schools to keep classes running after sunset and power low-cost tablets for students.',
-    // Appropriate Unsplash placeholder for solar school
-    imageUrl: 'https://images.unsplash.com/photo-1509395062183-67c5ad6faff9?w=1200&q=80&auto=format&fit=crop',
+      'Establish three community makerspaces with tools, mentorship, and free workshops to teach hands-on vocational and digital skills to local residents.',
+    // Unsplash placeholder for makerspace / workshop
+    imageUrl: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1200&q=80&auto=format&fit=crop',
     goalAmount: '3500000000000000000',
     amountRaised: '2780000000000000000',
     deadline: new Date(now + 9 * day).toISOString(),
     creatorWallet: '0x4d5a6b7c8d9e0f1234567890abcdef1234567890',
     grantContractAddress: '0x1111111111111111111111111111111111111111',
     milestones: milestones(-7, [
-      { title: 'Site Survey + Permits', description: 'Finalize school sites, permitting, and electrical safety approvals.', tranchePercent: 30 },
-      { title: 'Hardware Installation', description: 'Install panels, inverters, and battery systems at all 5 schools.', tranchePercent: 45 },
-      { title: 'Training + Handover', description: 'Train local operators and publish maintenance docs to the public repo.', tranchePercent: 25 },
+      { title: 'Space Setup & Tools', description: 'Outfit three makerspaces with core tools, workbenches, and secure storage for community use.', percent: 40 },
+      { title: 'Staffing & Mentorship', description: 'Hire local coordinators and onboard volunteer mentors to run skill-building programs.', percent: 35 },
+      { title: 'Workshops & Curriculum', description: 'Run free community workshops and publish open-source curricula and safety guides.', percent: 25 },
     ]),
     contributions: [],
     _count: { contributions: 9 },
@@ -149,38 +149,40 @@ export const mockProjects: Project[] = [
   },
   {
     id: 'demo-water-sensors',
-    title: 'Open River Water Quality Sensor Grid',
+    title: 'River Stewardship & Cleanup Program',
     description:
-      'Deploy low-cost open-hardware sensors across regional waterways and publish tamper-evident contaminant readings for communities and local labs.',
-    imageUrl: 'https://images.unsplash.com/photo-1473773508845-188df298d2d1?w=800&h=400&fit=crop&q=80',
+      'Organize community river cleanups, distribute cleanup kits, and run partnered lab testing to provide transparent water quality results to local residents.',
+    // Unsplash placeholder for river / cleanup
+    imageUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&h=400&fit=crop&q=80',
     goalAmount: '4100000000000000000',
     amountRaised: '1260000000000000000',
     deadline: new Date(now + 64 * day).toISOString(),
     creatorWallet: '0x0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b',
     grantContractAddress: '0x8888888888888888888888888888888888888888',
     milestones: milestones(11, [
-      { title: 'Sensor Build Batch', description: 'Assemble and calibrate first 40 sensor units in open labs.', tranchePercent: 30 },
-      { title: 'Network Installation', description: 'Install stations on river segments and complete data pipeline setup.', tranchePercent: 45 },
-      { title: 'Public Data Portal', description: 'Launch open API and dashboard with historical trend exports.', tranchePercent: 25 },
+      { title: 'Cleanup Kit Procurement', description: 'Purchase litter collection kits, gloves, and sample bottles for community teams.', percent: 30 },
+      { title: 'Community Cleanup Events', description: 'Run coordinated cleanup events and collect field samples for lab testing.', percent: 45 },
+      { title: 'Lab Analysis & Dashboard', description: 'Complete lab tests, publish results, and launch a public dashboard with historical trends.', percent: 25 },
     ]),
     contributions: [],
     _count: { contributions: 7 },
   },
   {
     id: 'demo-journalism-fund',
-    title: 'Open-Source Journalism Fund',
+    title: 'Investigative Reporting Fellowship',
     description:
-      'A milestone-based grant pool for independent journalists covering underreported stories. Each tranche releases only after editorial confirmation of publication.',
-    imageUrl: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&h=400&fit=crop&q=80',
+      'Fund investigative fellowships that support in-depth reporting on local governance and accountability; outputs are published openly with supporting source material.',
+    // Unsplash placeholder for reporting / journalism
+    imageUrl: 'https://images.unsplash.com/photo-1496317556649-f930d733eea2?w=800&h=400&fit=crop&q=80',
     goalAmount: '2500000000000000000',
     amountRaised: '1800000000000000000',
     deadline: new Date(now - 5 * day).toISOString(),
     creatorWallet: '0xc0ffee1234567890abcdef1234567890abcdef12',
     grantContractAddress: '0x9999999999999999999999999999999999999999',
     milestones: milestones(-14, [
-      { title: 'Editorial Vetting Pool', description: 'Onboard independent editors and anti-disinformation reviewers.', tranchePercent: 30 },
-      { title: 'Publication Grants', description: 'Release milestone grants to vetted investigations.', tranchePercent: 45 },
-      { title: 'Impact Ledger', description: 'Publish transparent outcomes, references, and corrections ledger.', tranchePercent: 25 },
+      { title: 'Fellow Selection & Onboarding', description: 'Select fellows and set editorial standards and anti-disinformation safeguards.', percent: 30 },
+      { title: 'Reporting Grants Disbursed', description: 'Fund in-depth investigations and support reporting expenses.', percent: 45 },
+      { title: 'Publication & Impact Report', description: 'Publish investigative pieces and an impact ledger documenting outcomes and corrections.', percent: 25 },
     ]),
     contributions: [],
     _count: { contributions: 14 },
