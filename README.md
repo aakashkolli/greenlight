@@ -2,8 +2,6 @@
 
 GreenLight is a Web3 crowdfunding app with on-chain escrow and refunds for backers.
 
-Originally built as a personal portfolio project, this repository is now documented as a public demo application and should not be used for real fundraising or real funds.
-
 Backers fund projects in ETH. Funds stay locked in a smart contract until the goal is reached. If a campaign misses its goal, contributors can claim refunds.
 
 ## Features
