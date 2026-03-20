@@ -302,7 +302,7 @@ export default function ProjectPageClient({ params }: { params: { id: string } }
                             {milestone.percent}%
                           </Badge>
                           {milestone.completed ? (
-                            <Badge bg="#18181B" color="#A1A1AA" border="1px solid #27272A" borderRadius="4px">
+                            <Badge bg="transparent" color="#A1A1AA" border="1px solid #27272A" borderRadius="4px">
                               Completed
                             </Badge>
                           ) : (

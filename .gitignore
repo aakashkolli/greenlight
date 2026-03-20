@@ -11,4 +11,3 @@ typechain-types/
 .gstack/
 .claude/
 TASKS.md
-frontend/tsconfig.tsbuildinfo

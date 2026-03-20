@@ -25,7 +25,6 @@ const nextConfig = {
       '@chakra-ui/react',
       'framer-motion',
       '@privy-io/react-auth',
-      '@privy-io/wagmi',
       'wagmi',
       'viem',
       '@tanstack/react-query',
