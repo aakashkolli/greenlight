@@ -17,21 +17,22 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_PAGES: true
+      GITHUB_REPOSITORY: ${{ github.repository }}
+      NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'https://greenlight-backend-lax5.onrender.com' }}
+      NEXT_PUBLIC_PRIVY_APP_ID: ${{ secrets.NEXT_PUBLIC_PRIVY_APP_ID || 'cmmvbtxlm00gk0ck1oj515c37' }}
+      NEXT_PUBLIC_USE_MOCK_DATA: 'false'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Build for GitHub Pages
         run: npm --workspace frontend run build:github-pages
-        env:
-          GITHUB_PAGES: true
-          NEXT_PUBLIC_PRIVY_APP_ID: cmmvbtxlm00gk0ck1oj515c37
-          # GITHUB_REPOSITORY is auto-provided by GitHub Actions
-          # NEXT_PUBLIC_USE_MOCK_DATA is intentionally not set — DEMO_MODE defaults to true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: frontend/out

@@ -1,25 +1,51 @@
 import type { Metadata } from 'next';
-import { Providers } from './providers';
+import dynamic from 'next/dynamic';
+import Script from 'next/script';
+import React from 'react';
+const Providers = dynamic(() => import('./providers').then((m) => m.Providers), { ssr: false });
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { Inter } from 'next/font/google';
+import { ColorModeScript } from '@chakra-ui/react';
+import { Inter, Space_Grotesk, JetBrains_Mono } from 'next/font/google';
 
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
 });
 
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-space-grotesk',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-jetbrains-mono',
+});
+
 export const metadata: Metadata = {
-  title: 'Greenlight',
-  description: 'Hybrid Web2/Web3 crowdfunding platform',
+  title: 'GreenLight',
+  description: 'An open-source, smart-contract powered crowdfunding protocol. Capital is locked in a trustless vault and released in tranches upon milestone verification.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.variable}>
-      <body>
-        <Providers>
-          <ErrorBoundary>{children}</ErrorBoundary>
-        </Providers>
+    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
+      <body suppressHydrationWarning>
+        <Script
+          id="gh-pages-route-recovery"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var u=new URL(window.location.href);var p=u.searchParams.get('p');if(!p)return;u.searchParams.delete('p');var target=p+(u.searchParams.toString()?('?'+u.searchParams.toString()):'')+u.hash;window.history.replaceState(null,'',target);}catch(e){}})();`,
+          }}
+        />
+        
+        <ColorModeScript initialColorMode="dark" />
+        <React.Suspense>
+          <Providers>
+            <ErrorBoundary>{children}</ErrorBoundary>
+          </Providers>
+        </React.Suspense>
+        
       </body>
     </html>
   );
