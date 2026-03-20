@@ -22,6 +22,9 @@ const jetbrainsMono = JetBrains_Mono({
   variable: '--font-jetbrains-mono',
 });
 
+const repoName = process.env.GITHUB_REPOSITORY?.split('/')[1] || '';
+const ghBasePath = process.env.GITHUB_PAGES === 'true' && repoName ? `/${repoName}` : '';
+
 export const metadata: Metadata = {
   title: 'GreenLight',
   description: 'An open-source, smart-contract powered crowdfunding protocol. Capital is locked in a trustless vault and released in tranches upon milestone verification.',
@@ -35,7 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           id="gh-pages-route-recovery"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var u=new URL(window.location.href);var p=u.searchParams.get('p');if(!p)return;u.searchParams.delete('p');var target=p+(u.searchParams.toString()?('?'+u.searchParams.toString()):'')+u.hash;window.history.replaceState(null,'',target);}catch(e){}})();`,
+            __html: `(function(){try{var u=new URL(window.location.href);var p=u.searchParams.get('p');if(!p)return;u.searchParams.delete('p');var base='${ghBasePath}';var normalizedPath=p.charAt(0)==='/'?p:('/'+p);var target=(base||'')+normalizedPath+(u.searchParams.toString()?('?'+u.searchParams.toString()):'')+u.hash;window.history.replaceState(null,'',target);}catch(e){}})();`,
           }}
         />
         
