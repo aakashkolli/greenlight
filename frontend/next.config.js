@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const isGithubPages = process.env.GITHUB_PAGES === 'true';
-const repoName = process.env.GITHUB_REPOSITORY?.split('/')[1] || '';
+const repoName = process.env.GITHUB_REPOSITORY?.split('/')[1] || require('../package.json').name || '';
 const basePath = isGithubPages && repoName ? `/${repoName}` : '';
 
 const nextConfig = {
