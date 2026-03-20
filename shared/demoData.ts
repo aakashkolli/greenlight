@@ -1,0 +1,185 @@
+export interface DemoMilestone {
+  title: string;
+  description: string;
+  percent: number;
+}
+
+export interface DemoProjectTemplate {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl?: string | null;
+  goalAmount: string; // wei
+  amountRaised: string; // wei
+  deadlineOffsetDays: number; // relative to now
+  creatorWallet: string;
+  grantContractAddress: string;
+  milestoneBaseDays: number; // baseDaysFromNow used by frontend milestones()
+  milestones: DemoMilestone[];
+}
+
+export const demoTemplates: DemoProjectTemplate[] = [
+  {
+    id: 'demo-solar-school',
+    title: 'Community Makerspaces for Skill-Building',
+    description:
+      'Establish three community makerspaces with tools, mentorship, and free workshops to teach hands-on vocational and digital skills to local residents.',
+    imageUrl:
+      'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1200&q=80&auto=format&fit=crop',
+    goalAmount: '3500000000000000000',
+    amountRaised: '2780000000000000000',
+    deadlineOffsetDays: 9,
+    creatorWallet: '0x4d5a6b7c8d9e0f1234567890abcdef1234567890',
+    grantContractAddress: '0x1111111111111111111111111111111111111111',
+    milestoneBaseDays: -7,
+    milestones: [
+      { title: 'Space Setup & Tools', description: 'Outfit three makerspaces with core tools, workbenches, and secure storage for community use.', percent: 40 },
+      { title: 'Staffing & Mentorship', description: 'Hire local coordinators and onboard volunteer mentors to run skill-building programs.', percent: 35 },
+      { title: 'Workshops & Curriculum', description: 'Run free community workshops and publish open-source curricula and safety guides.', percent: 25 },
+    ],
+  },
+  {
+    id: 'demo-open-clinic',
+    title: 'Open-Source Neighborhood Clinic',
+    description:
+      'Fund equipment and first-year operations for a community-run clinic with transparent spending and open governance updates.',
+    imageUrl: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200&q=80&auto=format&fit=crop',
+    goalAmount: '5000000000000000000',
+    amountRaised: '5000000000000000000',
+    deadlineOffsetDays: -2,
+    creatorWallet: '0x66aa77889900bbccddeeff001122334455667788',
+    grantContractAddress: '0x2222222222222222222222222222222222222222',
+    milestoneBaseDays: -28,
+    milestones: [
+      { title: 'Facility Buildout', description: 'Renovate clinic space and install baseline medical equipment.', percent: 40 },
+      { title: 'Clinical Launch', description: 'Begin patient intake with volunteer clinicians and open scheduling.', percent: 35 },
+      { title: 'Transparency Report', description: 'Publish first-quarter budget, patient volume, and outcomes report.', percent: 25 },
+    ],
+  },
+  {
+    id: 'demo-bike-stations',
+    title: 'Community Bike Repair & Share Stations',
+    description:
+      'Fund and install five self-service bike repair kiosks in underserved neighborhoods, each stocked with tools, pumps, and a QR-code map for local cyclists.',
+    imageUrl: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80&auto=format&fit=crop',
+    goalAmount: '1800000000000000000',
+    amountRaised: '740000000000000000',
+    deadlineOffsetDays: -1,
+    creatorWallet: '0x1234567890abcdef1234567890abcdef12345678',
+    grantContractAddress: '0x3333333333333333333333333333333333333333',
+    milestoneBaseDays: -10,
+    milestones: [
+      { title: 'Permit + Vendor Lock', description: 'Secure city permits and kiosk hardware procurement contracts.', percent: 30 },
+      { title: 'Station Deployment', description: 'Install five repair stations with sensors and inventory tags.', percent: 45 },
+      { title: 'Community Ops Onboarding', description: 'Train local volunteers and publish service uptime dashboard.', percent: 25 },
+    ],
+  },
+  {
+    id: 'demo-privacy-shield',
+    title: 'Open Source Privacy Shield',
+    description:
+      'A free browser extension that blocks third-party trackers, fingerprinting scripts, and ad surveillance - built for journalists, activists, and anyone who values their privacy online.',
+    imageUrl: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&h=400&fit=crop&q=80',
+    goalAmount: '2000000000000000000',
+    amountRaised: '500000000000000000',
+    deadlineOffsetDays: 30,
+    creatorWallet: '0xabcdef1234567890abcdef1234567890abcdef12',
+    grantContractAddress: '0x4444444444444444444444444444444444444444',
+    milestoneBaseDays: 5,
+    milestones: [
+      { title: 'Threat Model + Audit', description: 'Complete extension threat model and third-party code audit.', percent: 35 },
+      { title: 'Cross-Browser Release', description: 'Ship stable builds for Chromium and Firefox with telemetry-off defaults.', percent: 40 },
+      { title: 'Public Research Pack', description: 'Publish benchmark methodology and reproducible tracker-block reports.', percent: 25 },
+    ],
+  },
+  {
+    id: 'demo-climate-registry',
+    title: 'Decentralized Climate Data Registry',
+    description:
+      'An on-chain registry for verified climate sensor data submitted by certified research stations worldwide. Data is immutable, publicly accessible, and tamper-proof.',
+    imageUrl: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=800&h=400&fit=crop&q=80',
+    goalAmount: '5000000000000000000',
+    amountRaised: '3000000000000000000',
+    deadlineOffsetDays: 60,
+    creatorWallet: '0x9876543210fedcba9876543210fedcba98765432',
+    grantContractAddress: '0x5555555555555555555555555555555555555555',
+    milestoneBaseDays: 12,
+    milestones: [
+      { title: 'Validator Partnerships', description: 'Onboard accredited climate research partners and verification schema.', percent: 30 },
+      { title: 'Registry Mainnet Pilot', description: 'Deploy immutable registry contracts and indexer APIs.', percent: 45 },
+      { title: 'Open Data Rollout', description: 'Launch query portal and publish governance handoff process.', percent: 25 },
+    ],
+  },
+  {
+    id: 'demo-p2p-tutoring',
+    title: 'Peer-to-Peer Tutoring Network',
+    description:
+      'A decentralized marketplace connecting students in underserved regions with volunteer tutors globally. Smart contracts escrow session fees and release payment only after session confirmation.',
+    imageUrl: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&h=400&fit=crop&q=80',
+    goalAmount: '3000000000000000000',
+    amountRaised: '800000000000000000',
+    deadlineOffsetDays: 45,
+    creatorWallet: '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b',
+    grantContractAddress: '0x6666666666666666666666666666666666666666',
+    milestoneBaseDays: 8,
+    milestones: [
+      { title: 'Tutor Onboarding', description: 'Vet volunteer tutors and create subject-level quality rubrics.', percent: 30 },
+      { title: 'Escrow Session Engine', description: 'Launch milestone escrow for tutoring sessions and dispute windows.', percent: 45 },
+      { title: 'Regional Expansion', description: 'Open operations in 3 additional regions with local partners.', percent: 25 },
+    ],
+  },
+  {
+    id: 'demo-disaster-mesh',
+    title: 'Disaster-Response Mesh Network Kits',
+    description:
+      'Pre-position portable mesh networking kits for wildfire and flood zones so emergency teams can maintain connectivity when cellular infrastructure fails.',
+    imageUrl: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&h=400&fit=crop&q=80',
+    goalAmount: '3200000000000000000',
+    amountRaised: '1910000000000000000',
+    deadlineOffsetDays: 26,
+    creatorWallet: '0xfedcba9876543210fedcba9876543210fedcba98',
+    grantContractAddress: '0x7777777777777777777777777777777777777777',
+    milestoneBaseDays: 3,
+    milestones: [
+      { title: 'Kit Procurement', description: 'Purchase radios, battery packs, and hardened transport cases.', percent: 35 },
+      { title: 'Field Deployment', description: 'Install and test mesh coverage corridors across priority counties.', percent: 40 },
+      { title: 'Responder Training', description: 'Run drills and certify local teams on emergency communications runbooks.', percent: 25 },
+    ],
+  },
+  {
+    id: 'demo-water-sensors',
+    title: 'River Stewardship & Cleanup Program',
+    description:
+      'Organize community river cleanups, distribute cleanup kits, and run partnered lab testing to provide transparent water quality results to local residents.',
+    imageUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&h=400&fit=crop&q=80',
+    goalAmount: '4100000000000000000',
+    amountRaised: '1260000000000000000',
+    deadlineOffsetDays: 64,
+    creatorWallet: '0x0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b',
+    grantContractAddress: '0x8888888888888888888888888888888888888888',
+    milestoneBaseDays: 11,
+    milestones: [
+      { title: 'Cleanup Kit Procurement', description: 'Purchase litter collection kits, gloves, and sample bottles for community teams.', percent: 30 },
+      { title: 'Community Cleanup Events', description: 'Run coordinated cleanup events and collect field samples for lab testing.', percent: 45 },
+      { title: 'Lab Analysis & Dashboard', description: 'Complete lab tests, publish results, and launch a public dashboard with historical trends.', percent: 25 },
+    ],
+  },
+  {
+    id: 'demo-journalism-fund',
+    title: 'Investigative Reporting Fellowship',
+    description:
+      'Fund investigative fellowships that support in-depth reporting on local governance and accountability; outputs are published openly with supporting source material.',
+    imageUrl: 'https://images.unsplash.com/photo-1496317556649-f930d733eea2?w=800&h=400&fit=crop&q=80',
+    goalAmount: '2500000000000000000',
+    amountRaised: '1800000000000000000',
+    deadlineOffsetDays: -5,
+    creatorWallet: '0xc0ffee1234567890abcdef1234567890abcdef12',
+    grantContractAddress: '0x9999999999999999999999999999999999999999',
+    milestoneBaseDays: -14,
+    milestones: [
+      { title: 'Fellow Selection & Onboarding', description: 'Select fellows and set editorial standards and anti-disinformation safeguards.', percent: 30 },
+      { title: 'Reporting Grants Disbursed', description: 'Fund in-depth investigations and support reporting expenses.', percent: 45 },
+      { title: 'Publication & Impact Report', description: 'Publish investigative pieces and an impact ledger documenting outcomes and corrections.', percent: 25 },
+    ],
+  },
+];
